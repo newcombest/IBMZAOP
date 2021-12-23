@@ -1026,7 +1026,7 @@ module "workload_vpc_vsi" {
   allow_deprecated_image = false
   image_name             = var.workload_vpc_vsi_image_name
   base_security_group    = module.workload_vpc.base_security_group
-  label                  = "vsi-server-${count.index}"
+  label                  = "srv-${count.index}"
   count                  = var.workload_vsi_count
 }
 module "workload2_vpc_vsi" {
@@ -1044,7 +1044,7 @@ module "workload2_vpc_vsi" {
   allow_deprecated_image = false
   image_name             = var.workload2_vpc_vsi_image_name
   base_security_group    = module.workload2_vpc.base_security_group
-  label                  = "server-${count.index}"
+  label                  = "srv-${count.index}"
   count                  = var.workload2_vsi_count
 }
 module "workload3_vpc_vsi" {
@@ -1062,7 +1062,7 @@ module "workload3_vpc_vsi" {
   allow_deprecated_image = false
   image_name             = var.workload3_vpc_vsi_image_name
   base_security_group    = module.workload3_vpc.base_security_group
-  label                  = "server-${count.index}"
+  label                  = "srv-${count.index}"
   count                  = var.workload3_vsi_count
 }
 

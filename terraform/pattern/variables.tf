@@ -429,17 +429,17 @@ variable "workload3_kms_key_provision" {
 variable "workload_kms_key_name" {
   type        = string
   description = "The name of the root key in the kms instance. Required if kms_enabled is true"
-  default     = "workload_kms_key"
+  default     = "snet-csable_kms_key"
 }
 variable "workload2_kms_key_name" {
   type        = string
   description = "The name of the root key in the kms instance. Required if kms_enabled is true"
-  default     = "workload2_kms_key"
+  default     = "snet-dev_kms_key"
 }
 variable "workload3_kms_key_name" {
   type        = string
   description = "The name of the root key in the kms instance. Required if kms_enabled is true"
-  default     = "workload3_kms_key"
+  default     = "snet-prod_kms_key"
 }
 
 variable "workload_kms_key_label" {
