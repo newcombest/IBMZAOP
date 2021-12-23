@@ -1,0 +1,493 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: cra-terraform-scan
+spec:
+  params:
+    - name: ibmcloud-api
+      description: ibmcloud api endpoint
+      default: https://cloud.ibm.com
+    - name: repository
+      description: the git repo
+      default: ""
+    - name: branch
+      description: git branch with tf plans
+      default: ""
+    - name: tf-dir
+      description: the directory where the terraform main entry file is found
+      default: ""
+    - name: tf-var-file
+      description: (optional) terraform var-file
+      default: ""
+
+    - name: ibmcloud-apikey-secret-key
+      description: field in the secret that contains the api key used to login to ibmcloud
+      default: apikey
+    - name: continuous-delivery-context-secret
+      description: Reference name for the secret resource
+      default: "secure-properties"
+    - name: directory-name
+      description: directory name where the repository is cloned
+
+    - name: pipeline-debug
+      description: toggles debug mode for the pipeline
+      default: "false"
+    - name: policy-config-json
+      description: Configure policies to control thresholds
+      default: ""
+    - name: pr-url
+      description: pull request html url
+      default: ""
+    - name: project-id
+      description: for gitlab repository, specify project-id
+      default: ""
+    - name: resource-group
+      description: target resource group (name or id) for the ibmcloud login operation
+      default: ""
+    - name: git-access-token
+      description: |
+        (optional) token to access the git repository. If this token is provided, there will not be an attempt
+        to use the git token obtained from the authorization flow when adding the git integration in the toolchain
+      default: ""
+
+    - name: cra-bypass-failure
+      description: (optional) Should a failure be ignored
+      default: "false"
+    - name: cra-skip-scan-step
+      default: "false"
+  results:
+    - name: status
+      description: status of deployment analyzer task, possible value are- success|failed
+    - name: evidence-store
+      description: filepath to store deployment analyzer task evidence
+    - name: comment
+      description: filepath to store the comment markdown
+
+  stepTemplate:
+    env:
+      - name: PIPELINE_RUN_ID
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.annotations['devops.cloud.ibm.com/tekton-pipeline']
+      - name: PIPELINE_DEBUG
+        value: $(params.pipeline-debug)
+      - name: TF_DIR
+        value: $(params.tf-dir)
+      - name: VAR_FILE
+        value: $(params.tf-var-file)
+      - name: SKIP_SCAN_STEP
+        value: $(params.cra-skip-scan-step)
+  steps:
+    - name: terraform-compliance
+      image: icr.io/continuous-delivery/cra-terraform:release.2330
+      envFrom:
+        - configMapRef:
+            name: environment-properties
+        - secretRef:
+            name: secure-properties
+      env:
+        - name: REPOSITORY
+          value: $(params.repository)
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: $(params.continuous-delivery-context-secret)
+              key: $(params.ibmcloud-apikey-secret-key)
+              optional: true
+      imagePullPolicy: Always
+      command: ["/bin/bash", "-c"]
+      args:
+        - |
+          set -e
+          export TF_VAR_ibmcloud_api_key=${API_KEY}
+          if [[ "${PIPELINE_DEBUG}" == "true" ]]; then
+            pwd
+            ls /artifacts/
+            env
+            trap env EXIT
+            set -x
+          fi
+
+          if [ "${SKIP_SCAN_STEP}" == "true" ]; then
+            echo "Skipping scan as skip-scan-step is set to true"
+            exit 0
+          fi
+
+          REPO_DIR_PATH="/artifacts/$(params.directory-name)"
+
+          # Workaround to delete the provider.tf files
+           ORIG_DIR=${PWD}
+
+           echo "PWD = ${PWD}"
+           echo "folder = /artifacts/$(params.directory-name)"
+           ls /artifacts/$(params.directory-name)
+
+           cd /artifacts/$(params.directory-name)/${TF_DIR}
+
+          if [ -f $REPO_DIR_PATH/$(params.tf-dir)/backend.tf ]; then
+            mv $REPO_DIR_PATH/$(params.tf-dir)/backend.tf $REPO_DIR_PATH/$(params.tf-dir)/backend.tf.bak
+          fi
+
+           eval "terraform init || true"
+           rm -f .terraform/modules/mgmt_vpe_cos/provider.tf
+           rm -f .terraform/modules/workload_vpe_cos/provider.tf
+           rm -f .terraform/modules/workload2_vpe_cos/provider.tf
+           rm -f .terraform/modules/workload3_vpe_cos/provider.tf
+           rm -f .terraform/modules/mgmt_vpe_containerregistry/provider.tf
+           rm -f .terraform/modules/workload_vpe_containerregistry/provider.tf
+           rm -f .terraform/modules/workload2_vpe_containerregistry/provider.tf
+           rm -f .terraform/modules/workload3_vpe_containerregistry/provider.tf
+           rm -f .terraform/modules/mgmt_vpc_vsi/provider.tf
+           rm -f .terraform/modules/workload_vpc_vsi/provider.tf
+           rm -f .terraform/modules/workload2_vpc_vsi/provider.tf
+           rm -f .terraform/modules/workload3_vpc_vsi/provider.tf
+           
+           eval "terraform init"
+
+           cd ${ORIG_DIR}
+           # END - Workaround to delete the provider.tf files
+
+          TOOLCHAIN_CONFIG=$(cat /config/toolchain.json)
+          TOOLCHAIN_REGION=$(echo ${TOOLCHAIN_CONFIG} | jq -r '.region_id' | awk -F: '{print $3}')
+          TOOLCHAIN_ID=$(echo ${TOOLCHAIN_CONFIG} | jq -r '.toolchain_guid')
+          REGION_ID=$(echo ${TOOLCHAIN_CONFIG} | jq -r '.region_id')
+          API_ENDPOINT="https://cloud.ibm.com"
+          OTC_BROKER_BASE_URL="https://otcbroker.devopsinsights.cloud.ibm.com"
+          if echo "${REGION_ID}" | grep -q "ys1"; then
+            OTC_BROKER_BASE_URL="https://otcbroker.devopsinsights.dev.cloud.ibm.com"
+            API_ENDPOINT="https://test.cloud.ibm.com"
+            echo "targeting otc broker @ ${OTC_BROKER_BASE_URL}"
+            echo "targeting ibm cloud @ ${API_ENDPOINT}"
+          fi
+          echo "Fetching users's token"
+          ibmcloud config --check-version false
+          ibmcloud login -a $API_ENDPOINT -r $TOOLCHAIN_REGION --apikey $API_KEY
+          export IBM_CLOUD_BEARER=$(ibmcloud iam oauth-tokens --output JSON | jq -r '.iam_token' | awk '{ print $2 }')
+          echo "Fetching service urls for user's data"
+          HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" \
+            -X GET "${OTC_BROKER_BASE_URL}/globalauth/toolchainids/${TOOLCHAIN_ID}" \
+            --header "Authorization: Bearer ${IBM_CLOUD_BEARER}")
+          HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+          if [[ "$HTTP_STATUS" -eq 401 || "$HTTP_STATUS" -eq 403 ]]; then
+            echo ""
+            echo "Error authenticating user for toolchain_id: ${TOOLCHAIN_ID}"
+            echo "Please verify the Devops Insights card has been added to your toolchain and the api-key has access."
+            exit 1
+          fi
+          if [[ "$HTTP_STATUS" -ne 200 ]]; then
+            echo ""
+            echo "Error! Please try again."
+            exit 1
+          fi
+          HTTP_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
+          gitsecureUrl=$(echo ${HTTP_BODY} | jq -r '.service_urls.gitsecure')
+          if [[ -z "$gitsecureUrl" || "$gitsecureUrl" = "null" ]]; then
+            echo ""
+            echo "Error IBM Code Risk Analyzer is not supported in ${REGION_ID}"
+            exit 1
+          fi
+
+          echo "Running terraform compliance task"
+          if [[ "${PIPELINE_DEBUG}" == "true" ]]; then
+            ls $REPO_DIR_PATH
+          fi
+          result="failed"
+          LOG_LEVEL="info"
+
+          set +e
+          if [[ "$(params.policy-config-json)" == "" ]];
+          then
+            node /usr/src/index.js --git_token "NA" --repository $(params.repository) --gitClonedDir $REPO_DIR_PATH \
+              --INPUT_TF_DIR $(params.tf-dir) --revision $(params.branch) --commitid "NA" --pipelinerunid $PIPELINE_RUN_ID --prnumber "NA" --LOG_LEVEL $LOG_LEVEL --silent 1
+          else
+            node /usr/src/index.js --policyConfig $(params.policy-config-json) --git_token "NA" --repository $(params.repository) --gitClonedDir $REPO_DIR_PATH \
+              --INPUT_TF_DIR $(params.tf-dir) --revision $(params.branch) --commitid "NA" --pipelinerunid $PIPELINE_RUN_ID --prnumber "NA" --LOG_LEVEL $LOG_LEVEL --silent 1
+          fi
+
+          if [ $? == 0 ]; then export result="success"; fi
+
+          set -e
+
+          if [ -f $REPO_DIR_PATH/$(params.tf-dir)/backend.tf.bak ]; then
+            mv $REPO_DIR_PATH/$(params.tf-dir)/backend.tf.bak $REPO_DIR_PATH/$(params.tf-dir)/backend.tf
+          fi
+
+
+          if [[ "${PIPELINE_DEBUG}" == "true" ]]; then
+            cat /usr/policies/ibm/terraform-config.rego
+            echo $result
+            cat deploymant-analyzer.json
+          fi
+
+          echo -n $result > "$(results.status.path)"
+          cp deploymant-analyzer.json /steps/deploymant-analyzer.json
+          echo -n "/steps/deploymant-analyzer.json" > $(results.evidence-store.path)
+
+          cp ./da-terraform-check-comment.md /steps/da-terraform-check-comment.md
+          echo "COMMENT_FP=/steps/da-terraform-check-comment.md" >> /steps/next-step-env.properties
+          echo -n "/steps/da-terraform-check-comment.md" > $(results.comment.path)
+
+          echo "Deploymant Analyzer output:"
+          cat deploymant-analyzer.json
+          echo
+
+      volumeMounts:
+        - mountPath: /config
+          name: cd-config-volume
+        - mountPath: /steps
+          name: steps-volume
+    - name: fetch-git-information
+      image: ibmcom/pipeline-base-image:2.6
+      env:
+        - name: REPOSITORY
+          value: $(params.repository)
+        - name: API_ENDPOINT
+          value: $(params.ibmcloud-api)
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: $(params.continuous-delivery-context-secret)
+              key: $(params.ibmcloud-apikey-secret-key)
+              optional: true
+      command: ["/bin/bash", "-c"]
+      args:
+        - |
+          set -e -o pipefail
+          if [[ "${PIPELINE_DEBUG}" == "true" ]]; then
+              pwd
+              env
+              trap env EXIT
+              set -x
+          fi
+
+          if [ "${SKIP_SCAN_STEP}" == "true" ]; then
+            echo "Skipping scan as skip-scan-step is set to true"
+            exit 0
+          fi
+
+          TOOLCHAIN_ID=$(jq -r '.toolchain_guid' /cd-config/toolchain.json)
+          TOOLCHAIN_REGION=$(jq -r '.region_id' /cd-config/toolchain.json | awk -F: '{print $3}')
+          REGION_ID=$(jq -r '.region_id' /cd-config/toolchain.json)
+          ##########################################################################
+          # Setting HOME explicitly to have ibmcloud plugins available
+          # doing the export rather than env definition is a workaround
+          # until https://github.com/tektoncd/pipeline/issues/1836 is fixed
+          export HOME="/root"
+          ##########################################################################
+          if [[ "$REPOSITORY" != *.git ]]; then
+            echo "Adding .git suffix to Repository URL"
+            REPOSITORY="${REPOSITORY}.git"
+          fi
+          GIT_SERVICE_INSTANCE_ID=$(jq -r --arg git_repo "$REPOSITORY" '.services[] | select (.parameters.repo_url==$git_repo) | .instance_id' /cd-config/toolchain.json)
+          if [ -z "$GIT_SERVICE_INSTANCE_ID" ]; then
+            echo "No Git integration (repository url: $REPOSITORY) found in the toolchain"
+            exit 1
+          fi
+          GIT_SERVICE_TYPE=$(jq -r --arg git_repo "$REPOSITORY" '.services[] | select (.parameters.repo_url==$git_repo) | .service_id' /cd-config/toolchain.json)
+          if [ "$GIT_SERVICE_TYPE" == "github" ]; then
+            GIT_AUTH_USER="x-oauth-basic"
+          elif [ "$GIT_SERVICE_TYPE" == "githubpublic" ]; then
+            GIT_AUTH_USER="x-oauth-basic"
+          elif [ "$GIT_SERVICE_TYPE" == "hostedgit" ]; then
+            GIT_AUTH_USER="oauth2"
+          elif [ "$GIT_SERVICE_TYPE" == "gitlab" ]; then
+            GIT_AUTH_USER="oauth2"
+          elif [ "$GIT_SERVICE_TYPE" == "bitbucketgit" ]; then
+            GIT_AUTH_USER="x-token-auth"
+          else
+            GIT_AUTH_USER="x-token-auth"
+          fi;
+          GIT_TOKEN="$(params.git-access-token)"
+          if [ -z "$GIT_TOKEN" ]; then
+            if [[ "$REGION_ID" == *"ys1"* ]]; then
+              API_ENDPOINT="https://test.cloud.ibm.com"
+              echo "targeting ibm cloud @ ${API_ENDPOINT}"
+            fi
+            echo "Fetching token for $REPOSITORY"
+            ibmcloud config --check-version false
+            ibmcloud login -a $API_ENDPOINT -r $TOOLCHAIN_REGION --apikey $API_KEY
+            if [ "$(params.resource-group)" ]; then
+              ibmcloud target -g $(params.resource-group)
+            fi
+            TOKEN=$(ibmcloud iam oauth-tokens --output JSON | jq -r '.iam_token')
+            GIT_TOKEN_URL=$(jq -r --arg git_repo "$REPOSITORY" '.services[] | select (.parameters.repo_url==$git_repo) | .parameters.token_url' /cd-config/toolchain.json)
+            # GIT_TOKEN_URL is like https://otc-github-consolidated-broker.us-south.devops.cloud.ibm.com/github/token?git_id=github
+            # as there is already an url param git_id, just put the additional ones using &
+            echo "Doing cURL to ${GIT_TOKEN_URL}&toolchain_id=${TOOLCHAIN_ID}&service_instance_id=${GIT_SERVICE_INSTANCE_ID}&repo_url=${REPOSITORY}"
+            curl -s -o /steps/github_token_result.json -X GET -H "Accept: application/json" -H "Authorization: $TOKEN" "${GIT_TOKEN_URL}&toolchain_id=${TOOLCHAIN_ID}&service_instance_id=${GIT_SERVICE_INSTANCE_ID}&repo_url=${REPOSITORY}"
+            if jq -e '.access_token' /steps/github_token_result.json > /dev/null 2>&1; then
+              GIT_TOKEN=$(jq -r '.access_token' /steps/github_token_result.json)
+              echo "Access token found for the Git integration (repository url: $REPOSITORY)"
+            else
+              echo "No access token found for the Git integration (repository url: $REPOSITORY)"
+              cat /steps/github_token_result.json
+              exit 1
+            fi
+          else
+            echo "Using git Access Token provided"
+          fi
+          GIT_API_ROOT_URL=$(jq -r --arg git_repo "$REPOSITORY" '.services[] | select (.parameters.repo_url==$git_repo) | .parameters.api_root_url' /cd-config/toolchain.json)
+          GIT_OWNER_ID=$(jq -r --arg git_repo "$REPOSITORY" '.services[] | select (.parameters.repo_url==$git_repo) | .parameters.owner_id' /cd-config/toolchain.json)
+          GIT_REPO_NAME=$(jq -r --arg git_repo "$REPOSITORY" '.services[] | select (.parameters.repo_url==$git_repo) | .parameters.repo_name' /cd-config/toolchain.json)
+          GIT_ID=$(jq -r --arg git_repo "$REPOSITORY" '.services[] | select (.parameters.repo_url==$git_repo) | .parameters.git_id' /cd-config/toolchain.json)
+          TOOLCHAIN_REGION=$(jq -r '.region_id' /cd-config/toolchain.json | awk -F: '{print $3}')
+          echo "GIT_REPOSITORY=$REPOSITORY" >> /steps/next-step-env.properties
+          echo "GIT_AUTH_USER=$GIT_AUTH_USER" >> /steps/next-step-env.properties
+          echo "GIT_TOKEN=$GIT_TOKEN" >> /steps/next-step-env.properties
+          echo "GIT_SERVICE_TYPE=$GIT_SERVICE_TYPE" >> /steps/next-step-env.properties
+          echo "GIT_ID=$GIT_ID" >> /steps/next-step-env.properties
+          echo "GIT_API_ROOT_URL=$GIT_API_ROOT_URL" >> /steps/next-step-env.properties
+          echo "GIT_OWNER_ID=$GIT_OWNER_ID" >> /steps/next-step-env.properties
+          echo "GIT_REPO_NAME=$GIT_REPO_NAME" >> /steps/next-step-env.properties
+          echo "TOOLCHAIN_REGION=$TOOLCHAIN_REGION" >> /steps/next-step-env.properties
+          if [[ "${PIPELINE_DEBUG}" == "true" ]]; then
+            cat /steps/next-step-env.properties
+          fi
+      volumeMounts:
+        - mountPath: /cd-config
+          name: cd-config-volume
+        - mountPath: /steps
+          name: steps-volume
+    - name: comment-editor
+      image: icr.io/continuous-delivery/cra-comm-editor:release.1519
+      imagePullPolicy: Always
+      workingDir: "/artifacts"
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          #!/bin/sh
+          if [ "${SKIP_SCAN_STEP}" == "true" ]; then
+            echo "Skipping scan as skip-scan-step is set to true"
+            exit 0
+          fi
+
+          source /steps/next-step-env.properties
+
+          case "$(params.repository)" in
+            *git.cloud.ibm.com*)
+              SCM_TYPE="gitlab"
+              ;;
+            *ibm.com*)
+              SCM_TYPE="github-ent"
+              ;;
+            *)
+              SCM_TYPE="github"
+              ;;
+          esac
+
+          /usr/local/bin/comm-editor \
+            -repo-url "$(params.repository)" \
+            -pr-url "$(params.pr-url)" \
+            -token "$GIT_TOKEN" \
+            -comment-fp "$COMMENT_FP" \
+            -project-id "$(params.project-id)" \
+            -scm-type "$SCM_TYPE"
+
+          COMM_RESULT=$?
+          if [ "$COMM_RESULT" != "0" ]; then
+            echo "Error posting comment to pull request"
+            exit 1
+          fi
+
+      volumeMounts:
+        - mountPath: /steps
+          name: steps-volume
+
+    - name: check-output
+      image: icr.io/continuous-delivery/cra-terraform:release.2330
+      imagePullPolicy: Always
+      workingDir: "/artifacts"
+      command: ["/bin/sh", "-c"]
+      env:
+      - name: BYPASS_FAILURE
+        value: $(params.cra-bypass-failure)
+      args:
+        - |
+          #!/bin/bash -e
+
+          if [ "${SKIP_SCAN_STEP}" == "true" ]; then
+            echo "Skipping scan as skip-scan-step is set to true"
+            exit 0
+          fi
+
+          source /steps/next-step-env.properties
+
+          EVIDENCE_FILE_PATH=$(results.evidence-store.path)
+          EVIDENCE_FILE=`cat ${EVIDENCE_FILE_PATH}`
+
+
+          # echo "COMMENT_FP=${COMMENT_FP}"
+          # cat ${COMMENT_FP}
+
+          RESULTS_FILEPATH=$(results.comment.path)
+          # echo ${RESULTS_FILEPATH}
+
+          # cat ${RESULTS_FILEPATH}
+          RESULTS_FILE=$(cat ${RESULTS_FILEPATH})
+
+          WS="/steps"
+          RED='\033[0;31m'
+          NC='\033[0m'
+          GREEN='\033[0;32m'
+          # Translate md to Human Readable ASCII text
+          cp ${RESULTS_FILE} $WS/summary.txt
+          cat $WS/summary.txt | head -n 10 | sed 's|**||g'
+          echo
+
+          echo "Failed tests:"
+          cat ${EVIDENCE_FILE} | jq -c '.evidence_list[] | select(.result | contains("failed"))' | jq -r '."goal-Id" + " - " + .text'
+          echo
+
+          echo "Passed tests:"
+          cat ${EVIDENCE_FILE} | jq -c '.evidence_list[] | select(.result | contains("passed"))' | jq -r '."goal-Id" + " - " + .text'
+          echo
+
+          echo "Not tested:"
+          cat ${EVIDENCE_FILE} | jq -c '.evidence_list[] | select(.result | contains("not tested"))' | jq -r '."goal-Id" + " - " + .text'
+          echo
+
+          echo "Unsupported:"
+          cat ${EVIDENCE_FILE} | jq -c '.evidence_list[] | select(.result | contains("unsupported"))' | jq -r '."goal-Id" + " - " + .text'
+          echo
+
+          RETURN_CODE=0
+          
+          SCAN_STATUS_FILE="$(results.status.path)"
+          SCAN_STATUS=`cat ${SCAN_STATUS_FILE}`
+          echo
+          echo "Scan status: ${SCAN_STATUS}"
+          echo
+
+          if [ "${SCAN_STATUS}" == "failed" ]; then
+            RETURN_CODE=1
+          fi
+
+          if [ "${BYPASS_FAILURE}" == "true" ]; then
+            RETURN_CODE=0
+          fi
+
+          exit ${RETURN_CODE}
+
+      volumeMounts:
+        - mountPath: /steps
+          name: steps-volume
+
+  workspaces:
+    - name: artifacts
+      mountPath: /artifacts
+    - name: secrets
+      mountPath: /secrets
+
+  volumes:
+    - name: steps-volume
+      emptyDir: {}
+    - name: secrets
+      secret:
+        secretName: $(params.continuous-delivery-context-secret)
+    - name: cd-config-volume
+      configMap:
+        name: toolchain
+        items:
+          - key: toolchain.json
+            path: toolchain.json

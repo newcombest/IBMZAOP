@@ -1,0 +1,49 @@
+---
+inputs:
+  - type: git
+    service: ${github_integrated01}
+    branch: ${PIPELINE_REPO_BRANCH}
+    path: .tekton
+
+properties:
+  - type: secure
+    name: apikey
+    value: ${API_KEY}
+  - type: text
+    name: tf-dir
+    value: './terraform'
+  - type: text
+    name: tf-var-file
+    value: '../env/${VAR_FILE}'
+  - type: text
+    name: terraform-cmd
+    value: "plan"
+  - type: text
+    name: cra-bypass-failure
+    value: "false"
+  - type: text
+    name: pipeline-debug
+    value: "false"
+  - type: text
+    name: cra-skip-scan-step
+    value: "false"
+
+triggers:
+  - type: git
+    name: github-commit
+    eventListener: eventlistener-git-trigger-github-commit
+    service: ${github_integrated01}
+    branch: ${PIPELINE_REPO_BRANCH}
+    events: { "push": false }
+
+  - type: manual
+    name: Manual-Trigger
+    eventListener: eventlistener-git-trigger-manual
+    properties:
+      - type: text
+        name: repositoryForManualTrigger
+        value: ${PIPELINE_REPO}
+      - type: text
+        name: branch
+        value: ${PIPELINE_REPO_BRANCH}
+    is_public_worker: true

@@ -1,0 +1,145 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: pipeline
+spec:
+  params:
+    - name: project-id
+      description: project id
+      default: ""
+    - name: git-access-token
+      description: the token to access the git repository for the clone operations
+    - name: repository
+      description: the git repo
+    - name: branch
+      description: the branch for the git repo
+    - name: revision
+      description: the git revision/commit for the git repo
+      default: ""
+    - name: pr-repository
+      description: The source git repo for the PullRequest
+      default: ""
+    - name: pr-branch
+      description: The source branch for the PullRequest
+    - name: pr-revision
+      description: the commit id/sha for the PullRequest
+    - name: pr-url
+      description: URL of PR (if it is PR) to comment on
+      default: ""
+    - name: is-pr
+      description: (optional) If this is a PR trigger
+      default: "false"
+    - name: tf-dir
+      description: the directory where the terraform main entry file is found
+    - name: tf-var-file
+      description: (optional) terraform var-file
+    - name: policy-config-json
+      description: Configure policies to control thresholds
+      default: ""
+    - name: cra-bypass-failure
+      description: (optional) Should a failure be ignored
+      default: "false"
+    - name: terraform-cmd
+      description: (optional) Pattern will only apply when set to apply
+      default: "plan"
+    - name: pipeline-debug
+      default: "false"
+    - name: cra-skip-scan-step
+      default: "false"
+    - name: apply-pattern-extension
+      default: "false"
+      description: (optional) Set to true if extended pattern should be applied
+  workspaces:
+    - name: pipeline-ws
+  tasks:
+    - name: repo-clone-task
+      taskRef:
+        name: git-clone-repo
+      workspaces:
+        - name: output
+          workspace: pipeline-ws
+      params:
+        - name: git-access-token
+          value: $(params.git-access-token)
+        - name: repository
+          value: $(params.repository)
+        - name: branch
+          value: $(params.branch)
+        - name: revision
+          value: $(params.revision)
+        - name: pr-repository
+          value: $(params.pr-repository)
+        - name: pr-branch
+          value: $(params.pr-branch)
+        - name: pr-revision
+          value: $(params.pr-revision)
+        - name: pipeline-debug
+          value: $(params.pipeline-debug)
+        - name: apply-pattern-extension
+          value: $(params.apply-pattern-extension)
+
+    - name: cra-terraform-scan
+      runAfter:
+        - repo-clone-task
+      taskRef:
+        name: cra-terraform-scan
+      workspaces:
+        - name: artifacts
+          workspace: pipeline-ws
+        - name: secrets
+          workspace: pipeline-ws
+      params:
+        - name: git-access-token
+          value: $(params.git-access-token)
+        - name: repository
+          value: $(params.repository)
+        - name: branch
+          value: $(params.branch)
+        - name: project-id
+          value: $(params.project-id)
+        - name: directory-name
+          value: ""
+        - name: pipeline-debug
+          value: $(params.pipeline-debug)
+        - name: tf-dir
+          value: "$(params.tf-dir)/pattern"
+        - name: tf-var-file
+          value: $(params.tf-var-file)
+        - name: policy-config-json
+          value: $(params.policy-config-json)
+        - name: pr-url
+          value: $(params.pr-url)
+        - name: cra-bypass-failure
+          value: $(params.cra-bypass-failure)
+        - name: cra-skip-scan-step
+          value: $(params.cra-skip-scan-step)
+    - name: pattern-apply
+      when:
+        - input: "$(params.is-pr)"
+          operator: notin
+          values: ["true"]
+      runAfter:
+        - cra-terraform-scan
+      taskRef:
+        name: pattern-apply
+      workspaces:
+        - name: artifacts
+          workspace: pipeline-ws
+        - name: secrets
+          workspace: pipeline-ws
+      params:
+        - name: repository
+          value: $(params.repository)
+        - name: pipeline-debug
+          value: $(params.pipeline-debug)
+        - name: tf-dir
+          value: "$(params.tf-dir)/pattern"
+        - name: tf-var-file
+          value: $(params.tf-var-file)
+        - name: pr-url
+          value: $(params.pr-url)
+        - name: terraform-cmd
+          value: $(params.terraform-cmd)
+      description: (optional) Pattern will only apply when set to true
+      default: false

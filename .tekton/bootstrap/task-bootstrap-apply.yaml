@@ -1,0 +1,164 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: bootstrap-apply
+spec:
+  params:
+    - name: repository
+      description: the git repo
+    - name: ibmcloud-apikey-secret-key
+      description: field in the secret that contains the api key used to login to ibmcloud
+      default: apikey
+    - name: continuous-delivery-context-secret
+      description: Reference name for the secret resource
+      default: "secure-properties"
+    - name: pipeline-debug
+      description: toggles debug mode for the pipeline
+      default: "false"
+    - name: pr-url
+      description: pull request html url
+      default: ""
+    - name: terraform-cmd
+      description: (optional) Pattern will only apply when set to apply
+      default: "plan"
+    - name: tf-dir
+      description: the bootstrap directory where the terraform main entry file is found
+    - name: tf-var-file
+      description: tfvars file name with path from tf-dir
+  results:
+    - name: apply-output
+      description: output of "terraform apply"
+    - name: status
+      description: success or failure status of "terraform apply"
+
+  stepTemplate:
+    env:
+      - name: PIPELINE_DEBUG
+        value: $(params.pipeline-debug)
+      - name: REPOSITORY
+        value: $(params.repository)
+      - name: PR_URL
+        value: "$(params.pr-url)"
+      - name: PIPELINE_RUN_ID
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.annotations['devops.cloud.ibm.com/tekton-pipeline']
+      - name: TF_VAR_ibmcloud_api_key
+        valueFrom:
+          secretKeyRef:
+            name: $(params.continuous-delivery-context-secret)
+            key: $(params.ibmcloud-apikey-secret-key)
+            optional: true
+      - name: IBMCLOUD_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: $(params.continuous-delivery-context-secret)
+            key: $(params.ibmcloud-apikey-secret-key)
+            optional: true
+      - name: TF_DIR
+        value: $(params.tf-dir)
+      - name: VAR_FILE
+        value: $(params.tf-var-file)
+      - name: TERRAFORM_CMD
+        value: "$(params.terraform-cmd)"
+
+  steps:
+    - name: terraform-plan
+      image: icr.io/continuous-delivery/cra-terraform:release.2330
+      workingDir: "/artifacts"
+      envFrom:
+        - configMapRef:
+            name: environment-properties
+        - secretRef:
+            name: secure-properties
+      imagePullPolicy: Always
+      command: ["/bin/bash", "-c"]
+      args:
+        - |
+          #!/bin/bash -e
+
+          if [[ "${PIPELINE_DEBUG}" == "true" ]]; then
+            pwd
+            ls /artifacts/
+            env
+            trap env EXIT
+            set -x
+          fi
+
+          cd ${TF_DIR}
+
+          ARGS=""
+
+          if [ ! -z "${VAR_FILE}" ]; then
+            ARGS="${ARGS} -var-file=${VAR_FILE}"
+          fi
+
+          terraform init
+          [ $? -eq 0 ]  || exit 1
+
+          terraform plan ${ARGS}
+          [ $? -eq 0 ]  || exit 1
+      volumeMounts:
+        - mountPath: /config
+          name: cd-config-volume
+
+    - name: terraform-apply
+      image: icr.io/continuous-delivery/cra-terraform:release.2330
+      workingDir: "/artifacts"
+      envFrom:
+        - configMapRef:
+            name: environment-properties
+        - secretRef:
+            name: secure-properties
+      imagePullPolicy: Always
+      command: ["/bin/bash", "-c"]
+      args:
+        - |
+          #!/bin/bash -e
+
+          if [[ "${TERRAFORM_CMD}" == "plan" ]]; then
+            echo "Skipping apply since terraform-cmd is set to plan"
+            exit 0;
+          fi 
+
+          if [[ "${PIPELINE_DEBUG}" == "true" ]]; then
+            pwd
+            ls /artifacts/
+            env
+            trap env EXIT
+            set -x
+          fi
+
+          cd ${TF_DIR}
+          ARGS="-auto-approve"
+
+          if [ ! -z "${VAR_FILE}" ]; then
+            ARGS="${ARGS} -var-file=${VAR_FILE}"
+          fi
+
+          terraform init
+          [ $? -eq 0 ]  || exit 1
+
+          terraform apply ${ARGS}
+          [ $? -eq 0 ]  || exit 1
+
+          cp terraform.tfstate /artifacts/terraform/bootstrap.tfstate
+      volumeMounts:
+        - mountPath: /config
+          name: cd-config-volume
+  workspaces:
+    - name: artifacts
+      mountPath: /artifacts
+    - name: secrets
+      mountPath: /secrets
+  volumes:
+    - name: secrets
+      secret:
+        secretName: $(params.continuous-delivery-context-secret)
+    - name: cd-config-volume
+      configMap:
+        name: toolchain
+        items:
+          - key: toolchain.json
+            path: toolchain.json

@@ -1,0 +1,270 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: pattern-apply
+spec:
+  params:
+    - name: repository
+      description: the git repo
+    - name: tf-dir
+      description: the directory where the terraform main entry file is found
+      default: "./terraform/pattern"
+    - name: tf-var-file
+      description: (optional) terraform var-file
+      default: "../env/devtest.tfvars"
+    - name: ibmcloud-apikey-secret-key
+      description: field in the secret that contains the api key used to login to ibmcloud
+      default: apikey
+    - name: continuous-delivery-context-secret
+      description: Reference name for the secret resource
+      default: "secure-properties"
+    - name: pipeline-debug
+      description: toggles debug mode for the pipeline
+      default: "false"
+    - name: pr-url
+      description: pull request html url
+      default: ""
+    - name: terraform-cmd
+      description: (optional) Pattern will only apply when set to apply
+      default: "plan"
+
+  results:
+    - name: apply-output
+      description: output of "terraform apply"
+    - name: status
+      description: success or failure status of "terraform apply"
+  stepTemplate:
+    envFrom:
+    - configMapRef:
+        name: environment-properties
+    - secretRef:
+        name: secure-properties
+    env:
+      - name: PIPELINE_RUN_ID
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.annotations['devops.cloud.ibm.com/tekton-pipeline']
+      - name: PIPELINE_DEBUG
+        value: $(params.pipeline-debug)
+      - name: VAR_FILE
+        value: $(params.tf-var-file)
+      - name: REPOSITORY
+        value: $(params.repository)
+      - name: PR_URL
+        value: "$(params.pr-url)"
+      - name: TF_DIR
+        value: "$(params.tf-dir)"
+      - name: TF_VAR_ibmcloud_api_key
+        valueFrom:
+          secretKeyRef:
+            name: $(params.continuous-delivery-context-secret)
+            key: $(params.ibmcloud-apikey-secret-key)
+      - name: IBMCLOUD_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: $(params.continuous-delivery-context-secret)
+            key: $(params.ibmcloud-apikey-secret-key)
+      - name: TERRAFORM_CMD
+        value: "$(params.terraform-cmd)"
+  steps:
+    - name: terraform-init
+      image: icr.io/continuous-delivery/cra-terraform:release.2330
+      workingDir: "/artifacts"
+      imagePullPolicy: Always
+      command: ["/bin/bash", "-c"]
+      args:
+        - |
+          #!/bin/bash -e
+
+          if [[ "${PIPELINE_DEBUG}" == "true" ]]; then
+            pwd
+            ls /artifacts/
+            env
+            trap env EXIT
+            set -x +e
+          fi
+
+          cd ${TF_DIR}
+
+          INIT_ARGS=""
+
+          ibmcloud config --check-version=false
+          ibmcloud login --apikey ${TF_VAR_ibmcloud_api_key} --no-region
+
+          BOOTSTRAP_COS_NAME=$(grep -oP 'bootstrap_cos_name\s*=\s*"\K[\w\d-_]+' $VAR_FILE)
+          if [[ "XX_" != "XX_${BOOTSTRAP_COS_NAME}" ]]; then 
+             SERVICE_KEY_NAME="${BOOTSTRAP_COS_NAME}"
+          else
+             BOOTSTRAP_PREFIX=$(grep -oP 'bootstrap_cos_name_prefix\s*=\s*"\K[\w\d-]+' $VAR_FILE)
+             BOOTSTRAP_LABEL=$(grep -oP 'bootstrap_cos_label\s*=\s*"\K[\w\d-]+' $VAR_FILE)
+             SERVICE_KEY_NAME="${BOOTSTRAP_PREFIX}-${BOOTSTRAP_LABEL}"
+          fi
+
+          echo "Service key name = ${SERVICE_KEY_NAME}"
+          ibmcloud resource service-key ${SERVICE_KEY_NAME} --output json > "./service_key.json"
+
+          S3_ACCESS_KEY=$(jq .[].credentials.cos_hmac_keys.access_key_id "./service_key.json")
+          S3_SECRET_KEY=$(jq .[].credentials.cos_hmac_keys.secret_access_key "./service_key.json")
+          
+          S3_REGION=$(grep -oP 'bootstrap_cos_bucket_location\s*=\s*"\K[\w-]+' $VAR_FILE)
+          S3_BUCKET=$(grep -oP 'bootstrap_tfstate_bucket_name\s*=\s*"\K[\w\d-_]+' $VAR_FILE)
+          S3_ENDPOINT="s3.${S3_REGION}.cloud-object-storage.appdomain.cloud"
+   
+          INIT_ARGS="${INIT_ARGS} -backend-config=\"bucket=${S3_BUCKET}\""
+          INIT_ARGS="${INIT_ARGS} -backend-config=\"region=${S3_REGION}\""
+          INIT_ARGS="${INIT_ARGS} -backend-config=\"endpoint=${S3_ENDPOINT}\""
+          INIT_ARGS="${INIT_ARGS} -backend-config=\"access_key=${S3_ACCESS_KEY}\""
+          INIT_ARGS="${INIT_ARGS} -backend-config=\"secret_key=${S3_SECRET_KEY}\""
+
+          # Workaround to delete the provider.tf files
+          eval "terraform init ${INIT_ARGS} || true"
+          rm -f .terraform/modules/mgmt_vpe_cos/provider.tf
+          rm -f .terraform/modules/workload_vpe_cos/provider.tf
+          rm -f .terraform/modules/workload2_vpe_cos/provider.tf
+          rm -f .terraform/modules/workload3_vpe_cos/provider.tf
+          rm -f .terraform/modules/mgmt_vpe_containerregistry/provider.tf
+          rm -f .terraform/modules/workload_vpe_containerregistry/provider.tf
+          rm -f .terraform/modules/workload2_vpe_containerregistry/provider.tf
+          rm -f .terraform/modules/workload3_vpe_containerregistry/provider.tf
+          rm -f .terraform/modules/mgmt_vpc_vsi/provider.tf
+          rm -f .terraform/modules/workload_vpc_vsi/provider.tf
+          rm -f .terraform/modules/workload2_vpc_vsi/provider.tf
+          rm -f .terraform/modules/workload3_vpc_vsi/provider.tf
+          # END - Workaround to delete the provider.tf files
+
+          eval "terraform init ${INIT_ARGS}"
+
+          # Workaround for VPE modules
+          terraform show > show.out
+
+          IFS="
+          "
+
+          for line in $(cat show.out | grep -A1 content_base64 | xargs -L3); do
+            echo "Line: ${line}"
+            CONTENT=$(echo $line | awk '{print $3}' | base64 --decode)
+            FILEPATH=$(echo $line | awk '{print $6}')
+            mkdir -p $(dirname "${FILEPATH}")
+            echo "${CONTENT}" > ${FILEPATH}
+          done
+          # END - Workaround for VPE modules
+      volumeMounts:
+        - mountPath: /config
+          name: cd-config-volume
+
+    - name: terraform-plan
+      image: icr.io/continuous-delivery/cra-terraform:release.2330
+      workingDir: "/artifacts"
+      imagePullPolicy: Always
+      command: ["/bin/bash", "-c"]
+      args:
+        - |
+          #!/bin/bash -e
+
+          if [[ "${PIPELINE_DEBUG}" == "true" ]]; then
+            pwd
+            ls /artifacts/
+            env
+            trap env EXIT
+            set -x +e
+          fi
+
+          ROOTDIR=${PWD}              
+          cd ${TF_DIR}
+
+          # Workaround for VPE Gateway issue
+          mkdir -p .tmp
+          cat << EOB > .tmp/endpoint-gateway-targets.json          
+          {
+            "parent_id": "",
+            "crn": "",
+            "name": "",
+            "resource_type": "",
+            "endpoint_type": "",
+            "fully_qualified_domain_names": [
+            ],
+            "location": ""
+          }
+          EOB
+          
+          ARGS=""
+
+          if [ ! -z "${VAR_FILE}" ]; then
+            ARGS="${ARGS} -var-file=${VAR_FILE}"
+          fi
+          if [ "${TERRAFORM_CMD}" == "destroy" ]; then
+             ARGS="${ARGS} -destroy"
+          fi
+          terraform plan ${ARGS}
+          [ $? -eq 0 ]  || exit 1
+
+      volumeMounts:
+        - mountPath: /config
+          name: cd-config-volume
+
+    - name: terraform-apply
+      image: icr.io/continuous-delivery/cra-terraform:release.2330
+      workingDir: "/artifacts"
+      imagePullPolicy: Always
+      command: ["/bin/bash", "-c"]
+      args:
+        - |
+          #!/bin/bash -e
+
+          if [[ "${PIPELINE_DEBUG}" == "true" ]]; then
+            pwd
+            ls /artifacts/
+            env
+            trap env EXIT
+            set -x +e
+          fi
+
+          ## Workaround for ibmcloud plugin issue 
+          IBMCLOUD_DIR="/tmp"
+          IBMCLOUD_CLI_COMPRESSED_FILE="${IBMCLOUD_DIR}/ibmcloud.tgz"
+          IBMCLOUD_CLI_EXTRACTED_PATH="${IBMCLOUD_DIR}/IBM_Cloud_CLI"
+
+          cd $IBMCLOUD_DIR
+          wget https://download.clis.cloud.ibm.com/ibm-cloud-cli/2.1.1/binaries/IBM_Cloud_CLI_2.1.1_linux_amd64.tgz -O $IBMCLOUD_CLI_COMPRESSED_FILE
+          tar -xvzf $IBMCLOUD_CLI_COMPRESSED_FILE
+
+          export PATH="${IBMCLOUD_CLI_EXTRACTED_PATH}:${PATH}"
+
+          ibmcloud plugin install infrastructure-service
+
+           cd /artifacts/${TF_DIR}
+
+          ARGS="-auto-approve"
+
+          if [ ! -z "${VAR_FILE}" ]; then
+            ARGS="${ARGS} -var-file=${VAR_FILE}"
+          fi
+
+          if [ "${TERRAFORM_CMD}" == "apply" ]; then
+            terraform apply ${ARGS}
+            [ $? -eq 0 ]  || exit 1
+          elif [ "${TERRAFORM_CMD}" == "destroy" ]; then
+            terraform destroy ${ARGS}
+            [ $? -eq 0 ]  || exit 1
+          else
+            echo "Skipping terraform apply as terraform-cmd is not set to 'plan'"
+          fi
+      volumeMounts:
+        - mountPath: /config
+          name: cd-config-volume
+  workspaces:
+    - name: artifacts
+      mountPath: /artifacts
+    - name: secrets
+      mountPath: /secrets
+  volumes:
+    - name: secrets
+      secret:
+        secretName: $(params.continuous-delivery-context-secret)
+    - name: cd-config-volume
+      configMap:
+        name: toolchain
+        items:
+          - key: toolchain.json
+            path: toolchain.json

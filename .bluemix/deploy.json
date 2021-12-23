@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "messages": {
+    "$i18n": "locales.yml"
+  },
+  "title": "#/messages/deploy.title",
+  "description": "#/messages/deploy.description",
+  "longDescription": {
+    "$ref": "#/messages/deploy.longDescription"
+  },
+  "type": "object",
+  "properties": {
+    "api-key": {
+      "description": "API key to log into your IBM Cloud account and create secure landing zone resources",
+      "type": "string",
+      "pattern": "\\S",
+      "validator": {
+        "v-type": "api-key"
+      }
+    },
+    "app-name": {
+      "description": "Passing the app-name",
+      "type": "string",
+      "pattern": "\\S",
+      "validator": {
+        "v-type": "app-name"
+      }
+    },
+    "tf-var-file": {
+      "description": "Terraform tfvars file name. Secure landing zone will be created using values from this file. Eg: devtest.tfvars",
+      "type": "string",
+      "pattern": "\\S",
+      "validator": {
+        "v-type": "tf-var-file"
+      }
+    }
+  },
+  "required": [
+    "api-key",
+    "tf-var-file"
+  ],
+  "form": [
+    {
+      "type": "validator",
+      "url": "/devops/validator/validator-v1.html"
+    },
+    {
+      "type": "password",
+      "readonly": false,
+      "title": {
+        "$ref": "#/messages/deploy.apikey"
+      },
+      "key": "api-key"
+    },
+    {
+      "type": "text",
+      "readonly": false,
+      "title": {
+        "$ref": "#/messages/deploy.tfvars"
+      },
+      "key": "tf-var-file"
+    }
+  ]
+}
