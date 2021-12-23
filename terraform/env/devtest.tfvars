@@ -24,7 +24,7 @@ bootstrap_cos_label = "st-boot"
 
 ## The name for COS instance for bootstrap
 ## default: 
-bootstrap_cos_name = "st-bootstrap01-a"
+bootstrap_cos_name = "st-bootstrap01-b"
 
 ## Location of the bootstrap COS resources
 ## default: global
@@ -40,11 +40,11 @@ bootstrap_cos_tags = ""
 
 ## ##unique## The name of the COS bucket name for bootstrap(tfstate) ##unique##
 ## default: bootstrap
-bootstrap_tfstate_bucket_name = "st-bootstraptfstate-a"
+bootstrap_tfstate_bucket_name = "st-bootstraptfstate-b"
 
 ## ##unique## The name of the COS bucket name for bootstrap(kms) ##unique##
 ## default: bootstrap
-bootstrap_hpcskey_bucket_name = "st-bootstrapbuckethpcs-a"
+bootstrap_hpcskey_bucket_name = "st-bootstrapbuckethpcs-b"
 
 ## Location of the bootstrap COS bucket
 ## default: us-south
@@ -64,7 +64,7 @@ key_protect_name_prefix = "kp-cei-ca-tor"
 
 ## The label that should be used for the service, particularly when connecting to an existing service. If not provided then the name will be defaulted to {name prefix}-{service}
 ## default: 
-key_protect_label = "kpprod-a"
+key_protect_label = "kpprod-b"
 
 ## The name of the key protect instance
 ## default:
@@ -84,7 +84,7 @@ kms_key_region = "ca-tor"
 
 ## Name prefix of the key protect instance
 ## default: 
-kms_key_name_prefix = "kp-cei-ca-tor-kpprod-a"
+kms_key_name_prefix = "kp-cei-ca-tor-kpprod-b"
 
 ## The name of the key protect instance
 ## default:
@@ -136,7 +136,7 @@ kms_label = "hpcs"
 
 ## The name that should be used for the HPCS instance, particularly when connecting to an existing service. If not provided then the name will be defaulted to {name prefix}-{service}
 ## default:
-kms_name = "kp-cei-ca-tor-kpprod-a"
+kms_name = "kp-cei-ca-tor-kpprod-b"
 
 ## Flag indicating that the service should be created with private endpoints
 ## default: true
