@@ -1,0 +1,930 @@
+
+## cs_resource_group_name:  The name of the resource group
+## default: 
+cs_resource_group_name=""
+
+## ibmcloud_api_key:  The IBM Cloud api token
+## default: 
+ibmcloud_api_key=""
+
+## cs_resource_group_provision:  Flag indicating that the resource group should be created
+## default: true
+cs_resource_group_provision=true
+
+## hpcs_resource_group_name:  The name of the resource group
+## default: 
+hpcs_resource_group_name=""
+
+## hpcs_resource_group_provision:  Flag indicating that the resource group should be created
+## default: false
+hpcs_resource_group_provision=false
+
+## mgmt_resource_group_name:  The name of the resource group
+## default: 
+mgmt_resource_group_name=""
+
+## mgmt_resource_group_provision:  Flag indicating that the resource group should be created
+## default: true
+mgmt_resource_group_provision=true
+
+## workload_resource_group_name:  The name of the resource group
+## default: 
+workload_resource_group_name=""
+
+## workload_resource_group_provision:  Flag indicating that the resource group should be created
+## default: true
+workload_resource_group_provision=true
+
+## hpcs_region:  Geographic location of the resource (e.g. us-south, us-east)
+## default: 
+hpcs_region=""
+
+## hpcs_name_prefix:  The prefix name for the service. If not provided it will default to the resource group name
+## default: 
+hpcs_name_prefix=""
+
+## hpcs_name:  The name that should be used for the service, particularly when connecting to an existing service. If not provided then the name will be defaulted to {name prefix}-{service}
+## default: 
+hpcs_name=""
+
+## private_endpoint:  Flag indicating that the service should be created with private endpoints
+## default: true
+private_endpoint="true"
+
+## hpcs_plan:  The type of plan the service instance should run under (tiered-pricing)
+## default: standard
+hpcs_plan="standard"
+
+## hpcs_tags:  Tags that should be applied to the service
+## default: []
+hpcs_tags="[]"
+
+## hpcs_number_of_crypto_units:  No of crypto units that has to be attached to the instance.
+## default: 2
+hpcs_number_of_crypto_units=2
+
+## hpcs_provision:  Flag indicating that hpcs instance should be provisioned. If 'false' then the instance is expected to already exist.
+## default: false
+hpcs_provision=false
+
+## hpcs_label:  The label that will be used to generate the name from the name_prefix.
+## default: hpcs
+hpcs_label="hpcs"
+
+## region:  Geographic location of the resource (e.g. us-south, us-east)
+## default: 
+region=""
+
+## cs_name_prefix:  The prefix name for the service. If not provided it will default to the resource group name
+## default: 
+cs_name_prefix=""
+
+# ## ibm-activity-tracker_tags:  Tags that should be applied to the service
+# ## default: []
+# ibm-activity-tracker_tags="[]"
+# 
+# ## ibm-activity-tracker_plan:  The type of plan the service instance should run under (lite, 7-day, 14-day, or 30-day)
+# ## default: 7-day
+# ibm-activity-tracker_plan="7-day"
+# 
+# ## ibm-activity-tracker_provision:  Flag indicating that the instance should be provisioned
+# ## default: false
+# ibm-activity-tracker_provision=false
+# 
+# ## ibm-activity-tracker_label:  Label used to build the resource name if one is not provided.
+# ## default: activity-tracker
+# ibm-activity-tracker_label="activity-tracker"
+
+# ## cos_resource_location:  Geographic location of the resource (e.g. us-south, us-east)
+# ## default: global
+# cos_resource_location="global"
+# 
+# ## cos_tags:  Tags that should be applied to the service
+# ## default: []
+# cos_tags="[]"
+# 
+# ## cos_plan:  The type of plan the service instance should run under (lite or standard)
+# ## default: standard
+# cos_plan="standard"
+# 
+# ## cos_provision:  Flag indicating that key-protect instance should be provisioned
+# ## default: true
+# cos_provision=true
+# 
+# ## cos_label:  The name that should be used for the service, particularly when connecting to an existing service. If not provided then the name will be defaulted to {name prefix}-{service}
+# ## default: cos
+# cos_label="cos"
+
+## mgmt_cos_resource_location:  Geographic location of the resource (e.g. us-south, us-east)
+## default: global
+mgmt_cos_resource_location="global"
+
+## mgmt_cos_tags:  Tags that should be applied to the service
+## default: []
+mgmt_cos_tags="[]"
+
+## mgmt_cos_plan:  The type of plan the service instance should run under (lite or standard)
+## default: standard
+mgmt_cos_plan="standard"
+
+## mgmt_cos_provision:  Flag indicating that key-protect instance should be provisioned
+## default: true
+mgmt_cos_provision=true
+
+## mgmt_cos_label:  The name that should be used for the service, particularly when connecting to an existing service. If not provided then the name will be defaulted to {name prefix}-{service}
+## default: cos
+mgmt_cos_label="mgmt-cos"
+
+## workload_cos_resource_location:  Geographic location of the resource (e.g. us-south, us-east)
+## default: global
+workload_cos_resource_location="global"
+
+## workload_cos_tags:  Tags that should be applied to the service
+## default: []
+workload_cos_tags="[]"
+
+## workload_cos_plan:  The type of plan the service instance should run under (lite or standard)
+## default: standard
+workload_cos_plan="standard"
+
+## workload_cos_provision:  Flag indicating that key-protect instance should be provisioned
+## default: true
+workload_cos_provision=true
+
+## workload_cos_label:  The name that should be used for the service, particularly when connecting to an existing service. If not provided then the name will be defaulted to {name prefix}-{service}
+## default: cos
+workload_cos_label="workload-cos"
+
+## management-vpc_name:  The name of the vpc instance
+## default: 
+management-vpc_name=""
+
+## workload_name_prefix:  The name of the vpc resource
+## default: 
+management_name_prefix=""
+
+## management-vpc_provision:  Flag indicating that the instance should be provisioned. If false then an existing instance will be looked up
+## default: true
+management-vpc_provision=true
+
+## management-vpc_address_prefix_count:  The number of ipv4_cidr_blocks
+## default: 0
+management-vpc_address_prefix_count=0
+
+## management-vpc_address_prefixes:  List of ipv4 cidr blocks for the address prefixes (e.g. ['10.10.10.0/24']). If you are providing cidr blocks then a value must be provided for each of the subnets. If you don't provide cidr blocks for each of the subnets then values will be generated using the {ipv4_address_count} value.
+## default: []
+management-vpc_address_prefixes="[]"
+
+## workload-vpc_name:  The name of the vpc instance
+## default: 
+workload-vpc_name=""
+
+## workload_name_prefix:  The name of the vpc resource
+## default: 
+workload_name_prefix=""
+
+## workload-vpc_provision:  Flag indicating that the instance should be provisioned. If false then an existing instance will be looked up
+## default: false
+workload-vpc_provision=false
+
+## workload-vpc_address_prefix_count:  The number of ipv4_cidr_blocks
+## default: 0
+workload-vpc_address_prefix_count=0
+
+## workload-vpc_address_prefixes:  List of ipv4 cidr blocks for the address prefixes (e.g. ['10.10.10.0/24']). If you are providing cidr blocks then a value must be provided for each of the subnets. If you don't provide cidr blocks for each of the subnets then values will be generated using the {ipv4_address_count} value.
+## default: []
+workload-vpc_address_prefixes="[]"
+
+## mgmt-ocp-cluster_kms_id:  The crn of the KMS instance that will be used to encrypt the cluster.
+## default: null
+mgmt-ocp-cluster_kms_id=""
+
+## kms_key_id:  The id of the root key in the KMS instance that will be used to encrypt the cluster.
+## default: 
+kms_key_id=""
+
+## mgmt-ocp-cluster_name:  The name of the cluster that will be created within the resource group
+## default: 
+mgmt-ocp-cluster_name=""
+
+## worker_count:  The number of worker nodes that should be provisioned for classic infrastructure
+## default: 3
+worker_count=3
+
+## ocp_version:  The version of the OpenShift cluster that should be provisioned (format 4.x)
+## default: 4.6
+ocp_version="4.6"
+
+## mgmt-ocp-cluster_exists:  Flag indicating if the cluster already exists (true or false)
+## default: false
+mgmt-ocp-cluster_exists=false
+
+## mgmt-ocp-cluster_ocp_entitlement:  Value that is applied to the entitlements for OCP cluster provisioning
+## default: cloud_pak
+mgmt-ocp-cluster_ocp_entitlement="cloud_pak"
+
+## mgmt-ocp-cluster_flavor:  The machine type that will be provisioned for classic infrastructure
+## default: bx2.4x16
+mgmt-ocp-cluster_flavor="bx2.4x16"
+
+## mgmt-ocp-cluster_disable_public_endpoint:  Flag indicating that the public endpoint should be disabled
+## default: true
+mgmt-ocp-cluster_disable_public_endpoint=true
+
+## mgmt-ocp-cluster_kms_enabled:  Flag indicating that kms encryption should be enabled for this cluster
+## default: true
+mgmt-ocp-cluster_kms_enabled=true
+
+## mgmt-ocp-cluster_kms_private_endpoint:  Flag indicating that the private endpoint should be used to connect the KMS system to the cluster.
+## default: true
+mgmt-ocp-cluster_kms_private_endpoint=true
+
+## mgmt-ocp-cluster_login:  Flag indicating that after the cluster is provisioned, the module should log into the cluster
+## default: false
+mgmt-ocp-cluster_login=false
+
+## mgmt-subnets__count:  The number of subnets that should be provisioned
+## default: 3
+mgmt-subnets__count=3
+
+## mgmt-subnets_label:  Label for the subnets created
+## default: mgmt
+mgmt-subnets_label="mgmt"
+
+## mgmt-subnets_zone_offset:  The offset for the zone where the subnet should be created. The default offset is 0 which means the first subnet should be created in zone xxx-1
+## default: 0
+mgmt-subnets_zone_offset=0
+
+## mgmt-subnets_ipv4_cidr_blocks:  List of ipv4 cidr blocks for the subnets that will be created (e.g. ['10.10.10.0/24']). If you are providing cidr blocks then a value must be provided for each of the subnets. If you don't provide cidr blocks for each of the subnets then values will be generated using the {ipv4_address_count} value.
+## default: [\"10.10.10.0/24\",\"10.20.10.0/24\",\"10.30.10.0/24\"]
+mgmt-subnets_ipv4_cidr_blocks="[]"
+
+## mgmt-subnets_ipv4_address_count:  The size of the ipv4 cidr block that should be allocated to the subnet. If {ipv4_cidr_blocks} are provided then this value is ignored.
+## default: 256
+mgmt-subnets_ipv4_address_count=256
+
+## mgmt-subnets_provision:  Flag indicating that the subnet should be provisioned. If 'false' then the subnet will be looked up.
+## default: true
+mgmt-subnets_provision=true
+
+## mgmt-subnets_acl_rules:  List of rules to set on the subnet access control list
+## default: []
+mgmt-subnets_acl_rules="[]"
+
+## workload-ocp-cluster_kms_id:  The crn of the KMS instance that will be used to encrypt the cluster.
+## default: null
+workload-ocp-cluster_kms_id=""
+
+## workload-ocp-cluster_name:  The name of the cluster that will be created within the resource group
+## default: 
+workload-ocp-cluster_name=""
+
+## workload-ocp-cluster_exists:  Flag indicating if the cluster already exists (true or false)
+## default: false
+workload-ocp-cluster_exists=false
+
+## workload-ocp-cluster_ocp_entitlement:  Value that is applied to the entitlements for OCP cluster provisioning
+## default: cloud_pak
+workload-ocp-cluster_ocp_entitlement="cloud_pak"
+
+## workload-ocp-cluster_flavor:  The machine type that will be provisioned for classic infrastructure
+## default: bx2.4x16
+workload-ocp-cluster_flavor="bx2.4x16"
+
+## workload-ocp-cluster_disable_public_endpoint:  Flag indicating that the public endpoint should be disabled
+## default: true
+workload-ocp-cluster_disable_public_endpoint=true
+
+## workload-ocp-cluster_kms_enabled:  Flag indicating that kms encryption should be enabled for this cluster
+## default: true
+workload-ocp-cluster_kms_enabled=true
+
+## workload-ocp-cluster_kms_private_endpoint:  Flag indicating that the private endpoint should be used to connect the KMS system to the cluster.
+## default: true
+workload-ocp-cluster_kms_private_endpoint=true
+
+## workload-ocp-cluster_login:  Flag indicating that after the cluster is provisioned, the module should log into the cluster
+## default: false
+workload-ocp-cluster_login=false
+
+## workload-subnets__count:  The number of subnets that should be provisioned
+## default: 3
+workload-subnets__count=3
+
+## workload-subnets_label:  Label for the subnets created
+## default: workload
+workload-subnets_label="workload"
+
+## workload-subnets_zone_offset:  The offset for the zone where the subnet should be created. The default offset is 0 which means the first subnet should be created in zone xxx-1
+## default: 0
+workload-subnets_zone_offset=0
+
+## workload-subnets_ipv4_cidr_blocks:  List of ipv4 cidr blocks for the subnets that will be created (e.g. ['10.10.10.0/24']). If you are providing cidr blocks then a value must be provided for each of the subnets. If you don't provide cidr blocks for each of the subnets then values will be generated using the {ipv4_address_count} value.
+## default: [\"10.40.10.0/24\",\"10.50.10.0/24\",\"10.60.10.0/24\"]
+workload-subnets_ipv4_cidr_blocks="[]"
+
+## workload-subnets_ipv4_address_count:  The size of the ipv4 cidr block that should be allocated to the subnet. If {ipv4_cidr_blocks} are provided then this value is ignored.
+## default: 256
+workload-subnets_ipv4_address_count=256
+
+## workload-subnets_provision:  Flag indicating that the subnet should be provisioned. If 'false' then the subnet will be looked up.
+## default: true
+workload-subnets_provision=true
+
+## workload-subnets_acl_rules:  List of rules to set on the subnet access control list
+## default: []
+workload-subnets_acl_rules="[]"
+
+## mgmt_ssh_vpn_name:  (Optional) Name given to the ssh key instance. If not provided it will be generated using prefix_name
+## default: 
+mgmt_ssh_vpn_name="mgmt-ssh-vpn"
+
+## mgmt_ssh_vpn_label:  (Optional) Label used for the instance. It will be added to the name_prefix to create the name if the name is not provided.
+## default: vpn
+mgmt_ssh_vpn_label="vpn"
+
+## mgmt_ssh_vpn_public_key:  The public key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+mgmt_ssh_vpn_public_key=""
+
+## mgmt_ssh_vpn_private_key:  The private key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+mgmt_ssh_vpn_private_key=""
+
+## mgmt_ssh_vpn_public_key_file:  The name of the file containing the public key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+mgmt_ssh_vpn_public_key_file="ssh-mgmt-openvpn.pub"
+
+## mgmt_ssh_vpn_private_key_file:  The name of the file containing the private key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+mgmt_ssh_vpn_private_key_file="ssh-mgmt-openvpn"
+
+## mgmt_ssh_vpn_rsa_bits:  The number of bits for the rsa key, if it will be generated
+## default: 3072
+mgmt_ssh_vpn_rsa_bits=3072
+
+## mgmt_ssh_bastion_name:  (Optional) Name given to the ssh key instance. If not provided it will be generated using prefix_name
+## default: 
+mgmt_ssh_bastion_name="mgmt-ssh-bastion"
+
+## mgmt_ssh_bastion_label:  (Optional) Label used for the instance. It will be added to the name_prefix to create the name if the name is not provided.
+## default: bastion
+mgmt_ssh_bastion_label="bastion"
+
+## mgmt_ssh_bastion_public_key:  The public key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+mgmt_ssh_bastion_public_key=""
+
+## mgmt_ssh_bastion_private_key:  The private key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+mgmt_ssh_bastion_private_key=""
+
+## mgmt_ssh_bastion_public_key_file:  The name of the file containing the public key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+mgmt_ssh_bastion_public_key_file="ssh-mgmt-bastion.pub"
+
+## mgmt_ssh_bastion_private_key_file:  The name of the file containing the private key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+mgmt_ssh_bastion_private_key_file="ssh-mgmt-bastion"
+
+## mgmt_ssh_bastion_rsa_bits:  The number of bits for the rsa key, if it will be generated
+## default: 3072
+mgmt_ssh_bastion_rsa_bits=3072
+
+## mgmt_ssh_scc_name:  (Optional) Name given to the ssh key instance. If not provided it will be generated using prefix_name
+## default: 
+mgmt_ssh_scc_name="mgmt-ssh-scc"
+
+## mgmt_ssh_scc_label:  (Optional) Label used for the instance. It will be added to the name_prefix to create the name if the name is not provided.
+## default: scc
+mgmt_ssh_scc_label="scc"
+
+## mgmt_ssh_scc_public_key:  The public key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+mgmt_ssh_scc_public_key=""
+
+## mgmt_ssh_scc_private_key:  The private key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+mgmt_ssh_scc_private_key=""
+
+## mgmt_ssh_scc_public_key_file:  The name of the file containing the public key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+mgmt_ssh_scc_public_key_file="ssh-mgmt-scc.pub"
+
+## mgmt_ssh_scc_private_key_file:  The name of the file containing the private key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+mgmt_ssh_scc_private_key_file="ssh-mgmt-scc"
+
+## mgmt_ssh_scc_rsa_bits:  The number of bits for the rsa key, if it will be generated
+## default: 3072
+mgmt_ssh_scc_rsa_bits=3072
+
+## workload_ssh_vpn_name:  (Optional) Name given to the ssh key instance. If not provided it will be generated using prefix_name
+## default: 
+workload_ssh_vpn_name="workload-ssh-vpn"
+
+## workload_ssh_vpn_label:  (Optional) Label used for the instance. It will be added to the name_prefix to create the name if the name is not provided.
+## default: vpn
+workload_ssh_vpn_label="vpn"
+
+## workload_ssh_vpn_public_key:  The public key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+workload_ssh_vpn_public_key=""
+
+## workload_ssh_vpn_private_key:  The private key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+workload_ssh_vpn_private_key=""
+
+## workload_ssh_vpn_public_key_file:  The name of the file containing the public key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+workload_ssh_vpn_public_key_file="ssh-workload-openvpn.pub"
+
+## workload_ssh_vpn_private_key_file:  The name of the file containing the private key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+workload_ssh_vpn_private_key_file="ssh-workload-openvpn"
+
+## workload_ssh_vpn_rsa_bits:  The number of bits for the rsa key, if it will be generated
+## default: 3072
+workload_ssh_vpn_rsa_bits=3072
+
+## workload_ssh_bastion_name:  (Optional) Name given to the ssh key instance. If not provided it will be generated using prefix_name
+## default: 
+workload_ssh_bastion_name="ssh-workload-bastion"
+
+## workload_ssh_bastion_label:  (Optional) Label used for the instance. It will be added to the name_prefix to create the name if the name is not provided.
+## default: bastion
+workload_ssh_bastion_label="bastion"
+
+## workload_ssh_bastion_public_key:  The public key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+workload_ssh_bastion_public_key=""
+
+## workload_ssh_bastion_private_key:  The private key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+workload_ssh_bastion_private_key=""
+
+## workload_ssh_bastion_public_key_file:  The name of the file containing the public key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+workload_ssh_bastion_public_key_file="ssh-workload-bastion.pub"
+
+## workload_ssh_bastion_private_key_file:  The name of the file containing the private key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+workload_ssh_bastion_private_key_file="ssh-workload-bastion"
+
+## workload_ssh_bastion_rsa_bits:  The number of bits for the rsa key, if it will be generated
+## default: 3072
+workload_ssh_bastion_rsa_bits=3072
+
+## workload_ssh_scc_name:  (Optional) Name given to the ssh key instance. If not provided it will be generated using prefix_name
+## default: 
+workload_ssh_scc_name="workload-ssh-scc"
+
+## workload_ssh_scc_label:  (Optional) Label used for the instance. It will be added to the name_prefix to create the name if the name is not provided.
+## default: scc
+workload_ssh_scc_label="scc"
+
+## workload_ssh_scc_public_key:  The public key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+workload_ssh_scc_public_key=""
+
+## workload_ssh_scc_private_key:  The private key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+workload_ssh_scc_private_key=""
+
+## workload_ssh_scc_public_key_file:  The name of the file containing the public key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+workload_ssh_scc_public_key_file="ssh-workload-scc.pub"
+
+## workload_ssh_scc_private_key_file:  The name of the file containing the private key provided for the ssh key. If empty string is provided then a new key will be generated.
+## default: 
+workload_ssh_scc_private_key_file="ssh-workload-scc"
+
+## workload_ssh_scc_rsa_bits:  The number of bits for the rsa key, if it will be generated
+## default: 3072
+workload_ssh_scc_rsa_bits=3072
+
+## mgmt-vpe-subnets__count:  The number of subnets that should be provisioned
+## default: 3
+mgmt-vpe-subnets__count=3
+
+## mgmt-vpe-subnets_label:  Label for the subnets created
+## default: vpe
+mgmt-vpe-subnets_label="vpe"
+
+## mgmt-vpe-subnets_zone_offset:  The offset for the zone where the subnet should be created. The default offset is 0 which means the first subnet should be created in zone xxx-1
+## default: 0
+mgmt-vpe-subnets_zone_offset=0
+
+## mgmt-vpe-subnets_ipv4_cidr_blocks:  List of ipv4 cidr blocks for the subnets that will be created (e.g. ['10.10.10.0/24']). If you are providing cidr blocks then a value must be provided for each of the subnets. If you don't provide cidr blocks for each of the subnets then values will be generated using the {ipv4_address_count} value.
+## default: [\"10.10.20.0/24\",\"10.20.20.0/24\",\"10.30.20.0/24\"]
+mgmt-vpe-subnets_ipv4_cidr_blocks="[]"
+
+## mgmt-vpe-subnets_ipv4_address_count:  The size of the ipv4 cidr block that should be allocated to the subnet. If {ipv4_cidr_blocks} are provided then this value is ignored.
+## default: 256
+mgmt-vpe-subnets_ipv4_address_count=256
+
+## mgmt-vpe-subnets_provision:  Flag indicating that the subnet should be provisioned. If 'false' then the subnet will be looked up.
+## default: true
+mgmt-vpe-subnets_provision=true
+
+## mgmt-vpe-subnets_acl_rules:  List of rules to set on the subnet access control list
+## default: []
+mgmt-vpe-subnets_acl_rules="[]"
+
+## mgmt-vpn-subnets__count:  The number of subnets that should be provisioned
+## default: 1
+mgmt-vpn-subnets__count=1
+
+## mgmt-vpn-subnets_label:  Label for the subnets created
+## default: vpn
+mgmt-vpn-subnets_label="vpn"
+
+## mgmt-vpn-subnets_zone_offset:  The offset for the zone where the subnet should be created. The default offset is 0 which means the first subnet should be created in zone xxx-1
+## default: 0
+mgmt-vpn-subnets_zone_offset=0
+
+## mgmt-vpn-subnets_ipv4_cidr_blocks:  List of ipv4 cidr blocks for the subnets that will be created (e.g. ['10.10.10.0/24']). If you are providing cidr blocks then a value must be provided for each of the subnets. If you don't provide cidr blocks for each of the subnets then values will be generated using the {ipv4_address_count} value.
+## default: [\"10.10.30.0/24\"]
+mgmt-vpn-subnets_ipv4_cidr_blocks="[]"
+
+## mgmt-vpn-subnets_ipv4_address_count:  The size of the ipv4 cidr block that should be allocated to the subnet. If {ipv4_cidr_blocks} are provided then this value is ignored.
+## default: 256
+mgmt-vpn-subnets_ipv4_address_count=256
+
+## mgmt-vpn-subnets_provision:  Flag indicating that the subnet should be provisioned. If 'false' then the subnet will be looked up.
+## default: true
+mgmt-vpn-subnets_provision=true
+
+## mgmt-vpn-subnets_acl_rules:  List of rules to set on the subnet access control list
+## default: []
+mgmt-vpn-subnets_acl_rules="[]"
+
+## mgmt-bastion-subnets__count:  The number of subnets that should be provisioned
+## default: 2
+mgmt-bastion-subnets__count=2
+
+## mgmt-bastion-subnets_label:  Label for the subnets created
+## default: bastion
+mgmt-bastion-subnets_label="bastion"
+
+## mgmt-bastion-subnets_zone_offset:  The offset for the zone where the subnet should be created. The default offset is 0 which means the first subnet should be created in zone xxx-1
+## default: 0
+mgmt-bastion-subnets_zone_offset=0
+
+## mgmt-bastion-subnets_ipv4_cidr_blocks:  List of ipv4 cidr blocks for the subnets that will be created (e.g. ['10.10.10.0/24']). If you are providing cidr blocks then a value must be provided for each of the subnets. If you don't provide cidr blocks for each of the subnets then values will be generated using the {ipv4_address_count} value.
+## default: [\"10.20.30.0/24\",\"10.30.30.0/24\"]
+mgmt-bastion-subnets_ipv4_cidr_blocks="[]"
+
+## mgmt-bastion-subnets_ipv4_address_count:  The size of the ipv4 cidr block that should be allocated to the subnet. If {ipv4_cidr_blocks} are provided then this value is ignored.
+## default: 256
+mgmt-bastion-subnets_ipv4_address_count=256
+
+## mgmt-bastion-subnets_provision:  Flag indicating that the subnet should be provisioned. If 'false' then the subnet will be looked up.
+## default: true
+mgmt-bastion-subnets_provision=true
+
+## mgmt-bastion-subnets_acl_rules:  List of rules to set on the subnet access control list
+## default: []
+mgmt-bastion-subnets_acl_rules="[]"
+
+## mgmt-scc-subnets__count:  The number of subnets that should be provisioned
+## default: 1
+mgmt-scc-subnets__count=1
+
+## mgmt-scc-subnets_label:  Label for the subnets created
+## default: scc
+mgmt-scc-subnets_label="scc"
+
+## mgmt-scc-subnets_zone_offset:  The offset for the zone where the subnet should be created. The default offset is 0 which means the first subnet should be created in zone xxx-1
+## default: 0
+mgmt-scc-subnets_zone_offset=0
+
+## mgmt-scc-subnets_ipv4_cidr_blocks:  List of ipv4 cidr blocks for the subnets that will be created (e.g. ['10.10.10.0/24']). If you are providing cidr blocks then a value must be provided for each of the subnets. If you don't provide cidr blocks for each of the subnets then values will be generated using the {ipv4_address_count} value.
+## default: [\"10.1.1.0/24\"]
+mgmt-scc-subnets_ipv4_cidr_blocks="[]"
+
+## mgmt-scc-subnets_ipv4_address_count:  The size of the ipv4 cidr block that should be allocated to the subnet. If {ipv4_cidr_blocks} are provided then this value is ignored.
+## default: 256
+mgmt-scc-subnets_ipv4_address_count=256
+
+## mgmt-scc-subnets_provision:  Flag indicating that the subnet should be provisioned. If 'false' then the subnet will be looked up.
+## default: true
+mgmt-scc-subnets_provision=true
+
+## mgmt-scc-subnets_acl_rules:  List of rules to set on the subnet access control list
+## default: []
+mgmt-scc-subnets_acl_rules="[]"
+
+## workload-vpe-subnets__count:  The number of subnets that should be provisioned
+## default: 3
+workload-vpe-subnets__count=3
+
+## workload-vpe-subnets_label:  Label for the subnets created
+## default: vpe
+workload-vpe-subnets_label="vpe"
+
+## workload-vpe-subnets_zone_offset:  The offset for the zone where the subnet should be created. The default offset is 0 which means the first subnet should be created in zone xxx-1
+## default: 0
+workload-vpe-subnets_zone_offset=0
+
+## workload-vpe-subnets_ipv4_cidr_blocks:  List of ipv4 cidr blocks for the subnets that will be created (e.g. ['10.10.10.0/24']). If you are providing cidr blocks then a value must be provided for each of the subnets. If you don't provide cidr blocks for each of the subnets then values will be generated using the {ipv4_address_count} value.
+## default: [\"10.40.20.0/24\",\"10.50.20.0/24\",\"10.60.20.0/24\"]
+workload-vpe-subnets_ipv4_cidr_blocks="[]"
+
+## workload-vpe-subnets_ipv4_address_count:  The size of the ipv4 cidr block that should be allocated to the subnet. If {ipv4_cidr_blocks} are provided then this value is ignored.
+## default: 256
+workload-vpe-subnets_ipv4_address_count=256
+
+## workload-vpe-subnets_provision:  Flag indicating that the subnet should be provisioned. If 'false' then the subnet will be looked up.
+## default: true
+workload-vpe-subnets_provision=true
+
+## workload-vpe-subnets_acl_rules:  List of rules to set on the subnet access control list
+## default: []
+workload-vpe-subnets_acl_rules="[]"
+
+## workload-vpn-subnets__count:  The number of subnets that should be provisioned
+## default: 1
+workload-vpn-subnets__count=1
+
+## workload-vpn-subnets_label:  Label for the subnets created
+## default: vpn
+workload-vpn-subnets_label="vpn"
+
+## workload-vpn-subnets_zone_offset:  The offset for the zone where the subnet should be created. The default offset is 0 which means the first subnet should be created in zone xxx-1
+## default: 0
+workload-vpn-subnets_zone_offset=0
+
+## workload-vpn-subnets_ipv4_cidr_blocks:  List of ipv4 cidr blocks for the subnets that will be created (e.g. ['10.10.10.0/24']). If you are providing cidr blocks then a value must be provided for each of the subnets. If you don't provide cidr blocks for each of the subnets then values will be generated using the {ipv4_address_count} value.
+## default: [\"10.40.30.0/24\"]
+workload-vpn-subnets_ipv4_cidr_blocks="[]"
+
+## workload-vpn-subnets_ipv4_address_count:  The size of the ipv4 cidr block that should be allocated to the subnet. If {ipv4_cidr_blocks} are provided then this value is ignored.
+## default: 256
+workload-vpn-subnets_ipv4_address_count=256
+
+## workload-vpn-subnets_provision:  Flag indicating that the subnet should be provisioned. If 'false' then the subnet will be looked up.
+## default: true
+workload-vpn-subnets_provision=true
+
+## workload-vpn-subnets_acl_rules:  List of rules to set on the subnet access control list
+## default: []
+workload-vpn-subnets_acl_rules="[]"
+
+## workload-bastion-subnets__count:  The number of subnets that should be provisioned
+## default: 2
+workload-bastion-subnets__count=2
+
+## workload-bastion-subnets_label:  Label for the subnets created
+## default: bastion
+workload-bastion-subnets_label="bastion"
+
+## workload-bastion-subnets_zone_offset:  The offset for the zone where the subnet should be created. The default offset is 0 which means the first subnet should be created in zone xxx-1
+## default: 0
+workload-bastion-subnets_zone_offset=0
+
+## workload-bastion-subnets_ipv4_cidr_blocks:  List of ipv4 cidr blocks for the subnets that will be created (e.g. ['10.10.10.0/24']). If you are providing cidr blocks then a value must be provided for each of the subnets. If you don't provide cidr blocks for each of the subnets then values will be generated using the {ipv4_address_count} value.
+## default: [\"10.50.30.0/24\",\"10.60.30.0/24\"]
+workload-bastion-subnets_ipv4_cidr_blocks="[]"
+
+## workload-bastion-subnets_ipv4_address_count:  The size of the ipv4 cidr block that should be allocated to the subnet. If {ipv4_cidr_blocks} are provided then this value is ignored.
+## default: 256
+workload-bastion-subnets_ipv4_address_count=256
+
+## workload-bastion-subnets_provision:  Flag indicating that the subnet should be provisioned. If 'false' then the subnet will be looked up.
+## default: true
+workload-bastion-subnets_provision=true
+
+## workload-bastion-subnets_acl_rules:  List of rules to set on the subnet access control list
+## default: []
+workload-bastion-subnets_acl_rules="[]"
+
+## workload-scc-subnets__count:  The number of subnets that should be provisioned
+## default: 1
+workload-scc-subnets__count=1
+
+## workload-scc-subnets_label:  Label for the subnets created
+## default: scc
+workload-scc-subnets_label="scc"
+
+## workload-scc-subnets_zone_offset:  The offset for the zone where the subnet should be created. The default offset is 0 which means the first subnet should be created in zone xxx-1
+## default: 0
+workload-scc-subnets_zone_offset=0
+
+## workload-scc-subnets_ipv4_cidr_blocks:  List of ipv4 cidr blocks for the subnets that will be created (e.g. ['10.10.10.0/24']). If you are providing cidr blocks then a value must be provided for each of the subnets. If you don't provide cidr blocks for each of the subnets then values will be generated using the {ipv4_address_count} value.
+## default: [\"10.1.1.0/24\"]
+workload-scc-subnets_ipv4_cidr_blocks="[]"
+
+## workload-scc-subnets_ipv4_address_count:  The size of the ipv4 cidr block that should be allocated to the subnet. If {ipv4_cidr_blocks} are provided then this value is ignored.
+## default: 256
+workload-scc-subnets_ipv4_address_count=256
+
+## workload-scc-subnets_provision:  Flag indicating that the subnet should be provisioned. If 'false' then the subnet will be looked up.
+## default: true
+workload-scc-subnets_provision=true
+
+## workload-scc-subnets_acl_rules:  List of rules to set on the subnet access control list
+## default: []
+workload-scc-subnets_acl_rules="[]"
+
+## key-protect_tags:  Tags that should be applied to the service
+## default: []
+key-protect_tags="[]"
+
+## key-protect_plan:  The type of plan the service instance should run under (tiered-pricing)
+## default: tiered-pricing
+key-protect_plan="tiered-pricing"
+
+## key-protect_provision:  Flag indicating that key-protect instance should be provisioned
+## default: true
+key-protect_provision=true
+
+## key-protect_label:  The label used as generate the name of the resource using the name_prefix
+## default: keyprotect
+key-protect_label="keyprotect"
+
+## logdna_plan:  The type of plan the service instance should run under (lite, 7-day, 14-day, or 30-day)
+## default: 7-day
+logdna_plan="7-day"
+
+## logdna_tags:  Tags that should be applied to the service
+## default: []
+logdna_tags="[]"
+
+## logdna_provision:  Flag indicating that logdna instance should be provisioned
+## default: true
+logdna_provision=true
+
+## logdna_name:  The name that should be used for the service, particularly when connecting to an existing service. If not provided then the name will be defaulted to {name prefix}-{service}
+## default: 
+logdna_name="logdna"
+
+## logdna_label:  The label used to build the resource name if not provided
+## default: logging
+logdna_label="logging"
+
+## mgmt_scc_collector_kms_key_crn:  The crn of the root key in the kms instance. Required if kms_enabled is true
+## default: null
+mgmt_scc_collector_kms_key_crn="null"
+
+## mgmt_scc_collector_kms_enabled:  Flag indicating that the volumes should be encrypted using a KMS.
+## default: false
+mgmt_scc_collector_kms_enabled=false
+
+## mgmt_scc_collector_image_name:  The name of the image that will be used in the Virtual Server instance
+## default: ibm-ubuntu-18-04-1-minimal-amd64-2
+mgmt_scc_collector_image_name="ibm-ubuntu-18-04-1-minimal-amd64-2"
+
+## mgmt_scc_collector_init_script:  The script used to initialize the Virtual Server instance. If not provided the default script will be used.
+## default: 
+mgmt_scc_collector_init_script=""
+
+## workload-scc-collector_kms_key_crn:  The crn of the root key in the kms instance. Required if kms_enabled is true
+## default: null
+workload-scc-collector_kms_key_crn="null"
+
+## workload-scc-collector_kms_enabled:  Flag indicating that the volumes should be encrypted using a KMS.
+## default: false
+workload-scc-collector_kms_enabled=false
+
+## workload-scc-collector_image_name:  The name of the image that will be used in the Virtual Server instance
+## default: ibm-ubuntu-18-04-1-minimal-amd64-2
+workload-scc-collector_image_name="ibm-ubuntu-18-04-1-minimal-amd64-2"
+
+## workload-scc-collector_init_script:  The script used to initialize the Virtual Server instance. If not provided the default script will be used.
+## default: 
+workload-scc-collector_init_script=""
+
+## sysdig_plan:  The type of plan the service instance should run under (trial or graduated-tier)
+## default: graduated-tier
+sysdig_plan="graduated-tier"
+
+## sysdig_tags:  Tags that should be applied to the service
+## default: []
+sysdig_tags="[]"
+
+## sysdig_provision:  Flag indicating that logdna instance should be provisioned
+## default: true
+sysdig_provision=true
+
+## sysdig_name:  The name that should be used for the service, particularly when connecting to an existing service. If not provided then the name will be defaulted to {name prefix}-{service}
+## default: 
+sysdig_name="sysdig"
+
+## sysdig_label:  The label used to build the resource name if not provided.
+## default: monitoring
+sysdig_label="monitoring"
+
+## mgmt-vsi-bastion_tags:  Tags that should be added to the instance
+## default: []
+mgmt-vsi-bastion_tags="[]"
+
+## mgmt-vsi-bastion_kms_key_crn:  The crn of the root key in the kms instance. Required if kms_enabled is true
+## default: null
+mgmt-vsi-bastion_kms_key_crn="null"
+
+## mgmt-vsi-bastion_label:  The label for the server instance
+## default: server
+mgmt-vsi-bastion_label="server"
+
+## mgmt-vsi-bastion_image_name:  The name of the image to use for the virtual server
+## default: ibm-ubuntu-18-04-1-minimal-amd64-2
+mgmt-vsi-bastion_image_name="ibm-ubuntu-18-04-1-minimal-amd64-2"
+
+## mgmt-vsi-bastion_profile_name:  Instance profile to use for the bastion instance
+## default: cx2-2x4
+mgmt-vsi-bastion_profile_name="cx2-2x4"
+
+## mgmt-vsi-bastion_allow_ssh_from:  An IP address, a CIDR block, or a single security group identifier to allow incoming SSH connection to the virtual server
+## default: 10.0.0.0/8
+mgmt-vsi-bastion_allow_ssh_from="10.0.0.0/8"
+
+## mgmt-vsi-bastion_create_public_ip:  Set whether to allocate a public IP address for the virtual server instance
+## default: false
+mgmt-vsi-bastion_create_public_ip=false
+
+## mgmt-vsi-bastion_init_script:  Script to run during the instance initialization. Defaults to an Ubuntu specific script when set to empty
+## default: 
+mgmt-vsi-bastion_init_script=""
+
+## mgmt-vsi-bastion_kms_enabled:  Flag indicating that the volumes should be encrypted using a KMS.
+## default: false
+mgmt-vsi-bastion_kms_enabled=false
+
+## mgmt-vsi-bastion_auto_delete_volume:  Flag indicating that any attached volumes should be deleted when the instance is deleted
+## default: true
+mgmt-vsi-bastion_auto_delete_volume=true
+
+## workload-vsi-bastion_tags:  Tags that should be added to the instance
+## default: []
+workload-vsi-bastion_tags="[]"
+
+## workload-vsi-bastion_kms_key_crn:  The crn of the root key in the kms instance. Required if kms_enabled is true
+## default: null
+workload-vsi-bastion_kms_key_crn="null"
+
+## workload-vsi-bastion_label:  The label for the server instance
+## default: server
+workload-vsi-bastion_label="server"
+
+## workload-vsi-bastion_image_name:  The name of the image to use for the virtual server
+## default: ibm-ubuntu-18-04-1-minimal-amd64-2
+workload-vsi-bastion_image_name="ibm-ubuntu-18-04-1-minimal-amd64-2"
+
+## workload-vsi-bastion_profile_name:  Instance profile to use for the bastion instance
+## default: cx2-2x4
+workload-vsi-bastion_profile_name="cx2-2x4"
+
+## workload-vsi-bastion_allow_ssh_from:  An IP address, a CIDR block, or a single security group identifier to allow incoming SSH connection to the virtual server
+## default: 10.0.0.0/8
+workload-vsi-bastion_allow_ssh_from="10.0.0.0/8"
+
+## workload-vsi-bastion_create_public_ip:  Set whether to allocate a public IP address for the virtual server instance
+## default: false
+workload-vsi-bastion_create_public_ip=false
+
+## workload-vsi-bastion_init_script:  Script to run during the instance initialization. Defaults to an Ubuntu specific script when set to empty
+## default: 
+workload-vsi-bastion_init_script=""
+
+## workload-vsi-bastion_kms_enabled:  Flag indicating that the volumes should be encrypted using a KMS.
+## default: false
+workload-vsi-bastion_kms_enabled=false
+
+## workload-vsi-bastion_auto_delete_volume:  Flag indicating that any attached volumes should be deleted when the instance is deleted
+## default: true
+workload-vsi-bastion_auto_delete_volume=true
+
+## mgmt_vsi_vpn_tags:  The list of tags that will be applied to the OpenVPN vsi instances.
+## default: []
+mgmt_vsi_vpn_tags="[]"
+
+## mgmt_vsi_vpn_kms_key_crn:  The crn of the root key in the kms instance. Required if kms_enabled is true
+## default: 
+mgmt_vsi_vpn_kms_key_crn=""
+
+## mgmt_vsi_vpn_kms_enabled:  Flag indicating that the volumes should be encrypted using a KMS.
+## default: false
+mgmt_vsi_vpn_kms_enabled=false
+
+## mgmt_vsi_vpn_allow_deprecated_image:  Flag indicating that deprecated images should be allowed for use in the Virtual Server instance. If the value is `false` and the image is deprecated then the module will fail to provision
+## default: true
+mgmt_vsi_vpn_allow_deprecated_image=true
+
+## workload-vsi-vpn_tags:  The list of tags that will be applied to the OpenVPN vsi instances.
+## default: []
+workload-vsi-vpn_tags="[]"
+
+## workload-vsi-vpn_kms_key_crn:  The crn of the root key in the kms instance. Required if kms_enabled is true
+## default: 
+workload-vsi-vpn_kms_key_crn=""
+
+## workload-vsi-vpn_kms_enabled:  Flag indicating that the volumes should be encrypted using a KMS.
+## default: false
+workload-vsi-vpn_kms_enabled=false
+
+## workload-vsi-vpn_allow_deprecated_image:  Flag indicating that deprecated images should be allowed for use in the Virtual Server instance. If the value is `false` and the image is deprecated then the module will fail to provision
+## default: true
+workload-vsi-vpn_allow_deprecated_image=true
+
+scc_registration_key=""

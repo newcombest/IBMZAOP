@@ -1,0 +1,17 @@
+dist: xenial
+
+language: bash
+
+env:
+  - TF_VERSION=0.13.5
+
+jobs:
+  include:
+    - stage: validate
+      script: 
+        - ./scripts/install_terraform.sh
+        - ./scripts/tf_validate.sh
+    - stage: push-public
+      if: branch = public-github and (type = push OR type = api)
+      script:
+        - ./scripts/push_to_github.sh
