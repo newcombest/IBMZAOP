@@ -1,0 +1,936 @@
+apiVersion: cloud.ibm.com/v1alpha1
+kind: BillOfMaterial
+metadata:
+  name: roks-base-pattern
+spec:
+  modules:
+    - name: ibm-resource-group
+      alias: cs_resource_group
+      variables:
+        - name: resource_group_name
+          alias: cs_resource_group_name
+          scope: global
+        - name: provision
+          alias: cs_resource_group_provision
+          scope: global
+      version: v2.3.0
+    - name: ibm-access-group
+      dependencies:
+        - name: resource_group
+          ref: cs_resource_group
+      version: v2.2.0
+    # - name: key-protect
+    #   dependencies:
+    #     - name: resource_group
+    #       ref: cs_resource_group
+    #   version: v2.1.1
+    ## Not FS Cloud validated
+    # - name: ibm-activity-tracker
+    #   dependencies:
+    #     - name: resource_group
+    #       ref: cs_resource_group
+    #   version: v2.3.0
+    # - name: sysdig
+    #   dependencies:
+    #     - name: resource_group
+    #       ref: cs_resource_group
+    #   version: v3.4.0
+    # - name: logdna
+    #   dependencies:
+    #     - name: resource_group
+    #       ref: cs_resource_group
+    #   version: v3.3.1
+    ## END - Not FS Cloud validated
+
+    - name: ibm-iam-service-authorization
+      alias: mgmt_flow_log_auth
+      variables:
+        - name: source_service_name
+          value: is
+        - name: source_resource_type
+          value: flow-log-collector
+        - name: target_service_name
+          value: cloud-object-storage
+        - name: roles
+          value:
+            - Writer
+      dependencies:
+        - name: target_resource_group
+          ref: mgmt_resource_group
+    #     - name: source_resource
+    #       ref: source_resource
+    #  Source scope cannot be at the RG level
+    #     - name: source_resource_group
+    #       ref: source_resource_group
+    #     - name: target_resource
+    #       ref: target_resource
+      version: v1.1.2
+    - name: ibm-iam-service-authorization
+      alias: workload_flow_log_auth
+      variables:
+        - name: source_service_name
+          value: is
+        - name: source_resource_type
+          value: flow-log-collector
+        - name: target_service_name
+          value: cloud-object-storage
+        - name: roles
+          value:
+            - Writer
+      dependencies:
+        - name: target_resource_group
+          ref: workload_resource_group
+    #     - name: source_resource
+    #       ref: source_resource
+    #  Source scope cannot be at the RG level
+    #     - name: source_resource_group
+    #       ref: source_resource_group
+    #     - name: target_resource
+    #       ref: target_resource
+      version: v1.1.2
+    - name: ibm-iam-service-authorization
+      alias: workload_kube_encrypt_auth
+      variables:
+        - name: source_service_name
+          value: containers-kubernetes
+        - name: target_service_name
+          value: hs-crypto
+        - name: roles
+          value:
+            - Reader
+      dependencies:
+        - name: source_resource_group
+          ref: workload_resource_group
+        - name: target_resource_group
+          ref: hpcs_resource_group
+    #     - name: source_resource
+    #       ref: source_resource
+    #     - name: target_resource
+    #       ref: target_resource
+      version: v1.1.2
+    - name: ibm-iam-service-authorization
+      alias: mgmt_cos_auth
+      variables:
+        - name: source_service_name
+          value: cloud-object-storage
+        - name: target_service_name
+          value: hs-crypto
+        - name: roles
+          value:
+            - Reader
+      dependencies:
+        - name: source_resource_group
+          ref: mgmt_resource_group
+        - name: target_resource_group
+          ref: hpcs_resource_group
+    #     - name: source_resource
+    #       ref: source_resource
+    #     - name: target_resource
+    #       ref: target_resource
+      version: v1.1.2
+    - name: ibm-iam-service-authorization
+      alias: workload_cos_auth
+      variables:
+        - name: source_service_name
+          value: cloud-object-storage
+        - name: target_service_name
+          value: hs-crypto
+        - name: roles
+          value:
+            - Reader
+      dependencies:
+        - name: source_resource_group
+          ref: workload_resource_group
+        - name: target_resource_group
+          ref: hpcs_resource_group
+    #     - name: source_resource
+    #       ref: source_resource
+    #     - name: target_resource
+    #       ref: target_resource
+      version: v1.1.2
+    - name: ibm-resource-group
+      alias: hpcs_resource_group
+      variables:
+        - name: provision
+          value: false
+      version: v2.3.0
+    - name: hpcs
+      alias: hpcs
+      variables:
+        - name: provision
+          value: false
+        - name: region
+          alias: hpcs_region
+        - name: name_prefix
+          alias: hpcs_name_prefix
+          scope: global
+        - name: name
+          required: true
+      dependencies:
+        - name: resource_group
+          ref: hpcs_resource_group
+      version: v1.2.1
+    - name: ibm-kms-key
+      alias: mgmt_kms_key
+      variables:
+        - name: provision
+          value: true
+        - name: name_prefix
+          alias: mgmt_name_prefix
+          scope: global
+      dependencies:
+        - name: kms
+          ref: hpcs
+      version: v1.2.0
+    - name: ibm-kms-key
+      alias: workload_kms_key
+      variables:
+        - name: provision
+          value: true
+        - name: name_prefix
+          alias: workload_name_prefix
+          scope: global
+      dependencies:
+        - name: kms
+          ref: hpcs
+      version: v1.2.0
+# 120-mzr-management-openshift
+    - name: ibm-resource-group
+      alias: mgmt_resource_group
+      variables:
+        - name: resource_group_name
+          alias: mgmt_resource_group_name
+          scope: global
+        - name: provision
+          alias: mgmt_resource_group_provision
+          scope: global
+      version: v2.3.0
+    - name: ibm-access-group
+      alias: mgmt_access_group
+      dependencies:
+        - name: resource_group
+          ref: mgmt_resource_group
+      version: v2.2.0
+    - name: ibm-object-storage
+      alias: mgmt_cos
+      dependencies:
+        - name: resource_group
+          ref: mgmt_resource_group
+      variables:
+        - name: name_prefix
+          ref: mgmt_name_prefix
+      version: v3.2.0
+    - name: ibm-vpc
+      alias: management_vpc
+      dependencies:
+        - name: resource_group
+          ref: mgmt_resource_group
+      variables:
+        - name: address_prefix_count
+          value: 4
+        - name: address_prefixes
+          value: []
+      version: v1.11.5
+    - name: ibm-flow-logs
+      alias: mgmt_flow_logs
+      dependencies:
+        - name: target
+          ref: management_vpc
+        - name: cos_bucket
+          ref: mgmt_flow_log_bucket
+        - name: resource_group
+          ref: mgmt_resource_group
+        - name: auth
+          ref: auth # TODO: What is this?
+      version: v1.0.0
+    - name: ibm-vpc-gateways
+      alias: mgmt_vpc_gateway
+      dependencies:
+        - name: resource-group
+          ref: mgmt_resource_group
+        - name: vpc
+          ref: management_vpc
+      version: v1.4.0
+    - name: ibm-vpc-subnets
+      alias: mgmt_subnets
+      dependencies:
+        - name: resource-group
+          ref: mgmt_resource_group
+        - name: vpc
+          ref: management_vpc
+        - name: gateways
+          ref: mgmt_vpc_gateway
+      variables:
+        - name: _count
+          value: 3
+        - name: label
+          value: mgmt
+        - name: ipv4_cidr_blocks
+          value: []
+      version: v1.6.2
+    - name: ibm-ocp-vpc
+      alias: mgmt_ocp_cluster
+      variables:
+        - name: disable_public_endpoint
+          value: true
+        - name: kms_enabled
+          value: true
+        - name: authorize_kms
+          value: false
+        - name: name_prefix
+          alias: mgmt_name_prefix
+          scope: global
+      dependencies:
+        - name: subnets
+          ref: mgmt_subnets
+        - name: resource-group
+          ref: mgmt_resource_group
+        - name: cos
+          ref: mgmt_cos
+        - name: vpc
+          ref: management_vpc
+        - name: kms
+          ref: hpcs
+        - name: kms_key
+          ref: mgmt_kms_key
+      version: v1.7.0
+    - name: ibm-vpc-subnets
+      alias: mgmt_vpe_subnets
+      dependencies:
+        - name: resource-group
+          ref: mgmt_resource_group
+        - name: vpc
+          ref: management_vpc
+        - name: gateways
+          ref: mgmt_vpc_gateway
+      variables:
+        - name: _count
+          value: 3
+        - name: label
+          value: vpe
+        - name: ipv4_cidr_blocks
+          value: []
+      version: v1.6.2
+    - name: ibm-vpc-subnets
+      alias: mgmt_vpn_subnets
+      dependencies:
+        - name: resource-group
+          ref: mgmt_resource_group
+        - name: vpc
+          ref: management_vpc
+        - name: gateways
+          ref: mgmt_vpc_gateway
+      variables:
+        - name: _count
+          value: 1
+        - name: label
+          value: vpn
+        - name: ipv4_cidr_blocks
+          value: []
+        - name: acl_rules
+          value:
+            - name: ingress-all
+              action: allow
+              direction: inbound
+              source: 0.0.0.0/0
+              destination: 0.0.0.0/0
+            - name: egress-all
+              action: allow
+              direction: outbound
+              source: 0.0.0.0/0
+              destination: 0.0.0.0/0
+      version: v1.6.2
+    - name: ibm-vpc-subnets
+      alias: mgmt_bastion_subnets
+      dependencies:
+        - name: resource-group
+          ref: mgmt_resource_group
+        - name: vpc
+          ref: management_vpc
+        - name: gateways
+          ref: mgmt_vpc_gateway
+      variables:
+        - name: _count
+          value: 2
+        - name: label
+          value: bastion
+        - name: ipv4_cidr_blocks
+          value: []
+      version: v1.6.2
+    # - name: ibm-vpc-ssh
+    #   alias: mgmt_ssh_vpn
+    #   dependencies:
+    #     - name: resource_group
+    #       ref: mgmt_resource_group
+    #   variables:
+    #     - name: label
+    #       value: vpn
+    #     - name: name_prefix
+    #       value: mgmt_name_prefix
+    #       scope: global
+    #   version: v1.5.1
+# This module causes "ssh" module injection in terraform
+    ## OpenVPN is not FS Cloud validated
+    # - name: vsi-vpn
+    #   alias: mgmt_vsi_vpn
+    #   dependencies:
+    #     - name: subnets
+    #       ref: mgmt_vpn_subnets
+    #     - name: vpcssh
+    #       ref: mgmt_ssh_vpn
+    #     - name: resource_group
+    #       ref: mgmt_resource_group
+    #     - name: vpc
+    #       ref: management_vpc
+    #     - name: bastion
+    #       ref: mgmt_vsi_bastion
+    #     - name: kms_key
+    #       ref: mgmt_kms_key
+    #   version: v1.6.0
+    ## END - OpenVPN is not FS Cloud validated
+# END - This module causes "ssh" module injection in terraform
+
+    - name: ibm-vpc-vpn-gateway
+      alias: mgmt_vpn_gateway
+      dependencies:
+        - name: resource_group
+          ref: mgmt_resource_group
+        - name: vpc
+          ref: management_vpc
+        - name: subnets
+          ref: mgmt_vpn_subnets
+      variables:
+        - name: vpc_subnet_count
+          value: 1
+      version: v1.0.0
+    - name: ibm-vpc-vpn-gateway
+      alias: workload_vpn_gateway
+      dependencies:
+        - name: resource_group
+          ref: workload_resource_group
+        - name: vpc
+          ref: workload_vpc
+        - name: subnets
+          ref: workload_vpn_subnets
+      variables:
+        - name: vpc_subnet_count
+          value: 1
+      version: v1.0.0
+    - name: ibm-vpc-ssh
+      alias: mgmt_ssh_bastion
+      dependencies:
+        - name: resource_group
+          ref: mgmt_resource_group
+        - name: vpc
+          ref: management_vpc
+      variables:
+        - name: label
+          value: bastion
+        - name: name_prefix
+          alias: mgmt_name_prefix
+          scope: global
+      version: v1.5.1
+    ## Bastion host is not finalized in FS arch
+    # - name: vsi-bastion
+    #   alias: mgmt_vsi_bastion
+    #   dependencies:
+    #     - name: subnets
+    #       ref: mgmt_bastion_subnets
+    #     - name: vpcssh
+    #       ref: mgmt_ssh_bastion
+    #     - name: resource_group
+    #       ref: mgmt_resource_group
+    #     - name: vpc
+    #       ref: management_vpc
+    #     - name: kms_key
+    #       ref: mgmt_kms_key
+    #   version: v1.6.0
+    ## END - Bastion host is not finalized in FS arch
+    - name: ibm-object-storage-bucket
+      alias: mgmt_flow_log_bucket
+      dependencies:
+        - name: resource_group
+          ref: mgmt_resource_group
+        - name: cos
+          ref: mgmt_cos
+        - name: kms_key
+          ref: mgmt_kms_key
+        - name: vpc
+          ref: management_vpc
+      variables:
+        - name: label
+          value: flow-logs
+        - name: allowed_ip
+          value: 0.0.0.0/0
+        - name: name_prefix
+          alias: mgmt_name_prefix
+          scope: global
+      version: v0.6.0
+    - name: ibm-vpe-gateway
+      alias: mgmt_vpe_cos
+      dependencies:
+        - name: resource
+          ref: mgmt_cos
+        - name: subnets
+          ref: mgmt_vpe_subnets
+        - name: resource_group
+          ref: mgmt_resource_group
+        - name: vpc
+          ref: management_vpc
+      variables:
+        - name: name_prefix
+          alias: mgmt_name_prefix
+          scope: global
+      version: v1.4.0
+    - name: ibm-vpe-gateway
+      alias: workload_vpe_cos
+      dependencies:
+        - name: resource
+          ref: workload_cos
+        - name: subnets
+          ref: workload_vpe_subnets
+        - name: resource_group
+          ref: workload_resource_group
+        - name: vpc
+          ref: workload_vpc
+      variables:
+        - name: name_prefix
+          alias: workload_name_prefix
+          scope: global
+      version: v1.4.0    
+    - name: ibm-vpe-gateway
+      alias: mgmt_vpe_containerregistry
+      dependencies:
+        - name: subnets
+          ref: mgmt_vpe_subnets
+        - name: resource_group
+          ref: mgmt_resource_group
+        - name: vpc
+          ref: management_vpc
+      variables:
+        - name: name_prefix
+          alias: mgmt_name_prefix
+          scope: global
+        - name: resource_crn
+          # alias: mgmt_vpe_containerregistry_crn
+          value: "crn:v1:bluemix:public:container-registry:us-south:::endpoint:vpe.us-south.container-registry.cloud.ibm.com"
+        - name: resource_service    
+          # alias: mgmt_resource_service
+          value: "container-registry"
+        - name: resource_label
+          # alias: mgmt_resource_label
+          value: "icr"
+      version: v1.4.0    
+    - name: ibm-vpe-gateway
+      alias: workload_vpe_containerregistry
+      dependencies:
+        - name: subnets
+          ref: workload_vpe_subnets
+        - name: resource_group
+          ref: workload_resource_group
+        - name: vpc
+          ref: workload_vpc
+      variables:
+        - name: name_prefix
+          alias: workload_name_prefix
+          scope: global
+        - name: resource_crn
+          # alias: workload_vpe_containerregistry_crn
+          value: "crn:v1:bluemix:public:container-registry:us-south:::endpoint:vpe.us-south.container-registry.cloud.ibm.com"
+        - name: resource_service    
+          # alias: workload_resource_service
+          value: "container-registry"
+        - name: resource_label
+          # alias: workload_resource_label
+          value: "icr"
+      version: v1.4.0    
+
+    ## Not required as there will be a managed SCC Collector
+    # - name: ibm-vpc-subnets
+    #   alias: mgmt_scc_subnets
+    #   dependencies:
+    #     - name: resource-group
+    #       ref: mgmt_resource_group
+    #     - name: vpc
+    #       ref: management_vpc
+    #     - name: gateways
+    #       ref: mgmt_vpc_gateway
+    #   variables:
+    #     - name: _count
+    #       value: 1
+    #     - name: label
+    #       value: scc
+    #     - name: ipv4_cidr_blocks
+    #       value: []
+    #     - name: acl_rules
+    #       value:
+    #         - name: ingress-all
+    #           action: allow
+    #           direction: inbound
+    #           source: 0.0.0.0/0
+    #           destination: 0.0.0.0/0
+    #         - name: egress-all
+    #           action: allow
+    #           direction: outbound
+    #           source: 0.0.0.0/0
+    #           destination: 0.0.0.0/0
+    #   version: v1.6.2
+    # - name: ibm-vpc-ssh
+    #   alias: mgmt_ssh_scc
+    #   dependencies:
+    #     - name: resource_group
+    #       ref: mgmt_resource_group
+    #   variables:
+    #     - name: label
+    #       value: scc
+    #     - name: name_prefix
+    #       alias: mgmt_name_prefix
+    #       scope: global
+    #   version: v1.5.1
+    # - name: scc-collector
+    #   alias: mgmt_scc_collector
+    #   variables:
+    #     - name: scc_registration_key
+    #       alias: mgmt_scc_registration_key
+    #   dependencies:
+    #     - name: vpcssh
+    #       ref: mgmt_ssh_scc
+    #     - name: subnets
+    #       ref: mgmt_scc_subnets
+    #     - name: resource_group
+    #       ref: mgmt_resource_group
+    #     - name: vpc
+    #       ref: management_vpc
+    ## END - Not required as there will be a managed SCC Collector
+    
+    - name: ibm-iam-service-authorization
+      alias: mgmt_vsi_encrypt_auth
+      variables:
+        - name: source_service_name
+          value: server-protect
+        - name: target_service_name
+          value: hs-crypto
+        - name: roles
+          value:
+            - Reader
+      dependencies:
+        - name: source_resource_group
+          ref: mgmt_resource_group
+        - name: target_resource_group
+          ref: hpcs_resource_group
+      version: v1.1.2
+    - name: ibm-iam-service-authorization
+      alias: mgmt_kube_encrypt_auth
+      variables:
+        - name: source_service_name
+          value: containers-kubernetes
+        - name: target_service_name
+          value: hs-crypto
+        - name: roles
+          value:
+            - Reader
+      dependencies:
+        - name: source_resource_group
+          ref: mgmt_resource_group
+        - name: target_resource_group
+          ref: hpcs_resource_group
+      version: v1.1.2
+    
+# 140-mzr-workload-openshift
+    - name: ibm-resource-group
+      alias: workload_resource_group
+      variables:
+        - name: resource_group_name
+          alias: workload_resource_group_name
+          scope: global
+        - name: provision
+          alias: workload_resource_group_provision
+          scope: global
+      version: v2.3.0
+    - name: ibm-access-group
+      alias: workload_access_group
+      dependencies:
+        - name: resource_group
+          ref: workload_resource_group
+      version: v2.2.0
+    - name: ibm-object-storage
+      alias: workload_cos
+      dependencies:
+        - name: resource_group
+          ref: workload_resource_group
+      variables:
+        - name: name_prefix
+          alias: workload_name_prefix
+      version: v3.2.0
+    - name: ibm-object-storage-bucket
+      alias: workload_flow_log_bucket
+      dependencies:
+        - name: resource_group
+          ref: workload_resource_group
+        - name: cos
+          ref: workload_cos
+        - name: kms_key
+          ref: workload_kms_key
+        - name: vpc
+          ref: workload_vpc
+      variables:
+        - name: label
+          value: flow-logs
+        - name: allowed_ip
+          value: 0.0.0.0/0
+        - name: name_prefix
+          alias: workload_name_prefix
+      version: v0.6.0
+    - name: ibm-vpc
+      alias: workload_vpc
+      dependencies:
+        - name: resource_group
+          ref: workload_resource_group
+      variables:
+        - name: provision
+          value: false
+        - name: name
+          required: true
+        - name: name_prefix
+          alias: workload_name_prefix
+          scope: global
+        - name: address_prefix_count
+          value: 4
+        - name: address_prefixes
+          value: []
+      version: v1.11.5
+    - name: ibm-flow-logs
+      alias: workload_flow_logs
+      dependencies:
+        - name: target
+          ref: workload_vpc
+        - name: cos_bucket
+          ref: workload_flow_log_bucket
+        - name: resource_group
+          ref: workload_resource_group
+        # Not a required field
+        - name: auth
+          ref: auth
+      version: v1.0.0
+    - name: ibm-vpc-gateways
+      alias: workload_vpc_gateway
+      dependencies:
+        - name: resource-group
+          ref: workload_resource_group
+        - name: vpc
+          ref: workload_vpc
+      version: v1.4.0
+    - name: ibm-vpc-subnets
+      alias: workload_subnets
+      dependencies:
+        - name: resource-group
+          ref: workload_resource_group
+        - name: vpc
+          ref: workload_vpc
+        - name: gateways
+          ref: workload_vpc_gateway
+      variables:
+        - name: _count
+          value: 3
+        - name: label
+          value: workload
+        - name: ipv4_cidr_blocks
+          value: []
+      version: v1.6.2
+    - name: ibm-ocp-vpc
+      alias: workload_ocp_cluster
+      variables:
+        - name: disable_public_endpoint
+          value: true
+        - name: kms_enabled
+          value: true
+        - name: authorize_kms
+          value: false
+        - name: name_prefix
+          alias: workload_name_prefix
+          scope: global
+      dependencies:
+        - name: subnets
+          ref: workload_subnets
+        - name: resource-group
+          ref: workload_resource_group
+        - name: cos
+          ref: workload_cos
+        - name: vpc
+          ref: workload_vpc
+        - name: kms_key
+          ref: workload_kms_key
+      version: v1.7.0
+    - name: ibm-vpc-subnets
+      alias: workload_vpe_subnets
+      dependencies:
+        - name: resource-group
+          ref: workload_resource_group
+        - name: vpc
+          ref: workload_vpc
+        - name: gateways
+          ref: workload_vpc_gateway
+      variables:
+        - name: _count
+          value: 3
+        - name: label
+          value: vpe
+        - name: ipv4_cidr_blocks
+          value: []
+      version: v1.6.2
+    - name: ibm-vpc-subnets
+      alias: workload_vpn_subnets
+      dependencies:
+        - name: resource-group
+          ref: workload_resource_group
+        - name: vpc
+          ref: workload_vpc
+        - name: gateways
+          ref: workload_vpc_gateway
+      variables:
+        - name: _count
+          value: 1
+        - name: label
+          value: vpn
+        - name: ipv4_cidr_blocks
+          value: []
+      version: v1.6.2
+    # - name: ibm-vpc-subnets
+    #   alias: workload-bastion-subnets
+    #   dependencies:
+    #     - name: resource-group
+    #       ref: workload_resource_group
+    #     - name: vpc
+    #       ref: workload_vpc
+    #     - name: gateways
+    #       ref: workload_vpc_gateway
+    #   variables:
+    #     - name: _count
+    #       value: 2
+    #     - name: label
+    #       value: bastion
+    #     - name: ipv4_cidr_blocks
+    #       value: []
+    #   version: v1.6.2
+    # - name: ibm-vpc-ssh
+    #   alias: workload_ssh_vpn
+    #   variables:
+    #     - name: label
+    #       value: vpn
+    #   dependencies:
+    #     - name: resource_group
+    #       ref: workload_resource_group
+    # - name: vsi-vpn
+    #   alias: workload-vsi-vpn
+    #   dependencies:
+    #     - name: subnets
+    #       ref: workload-vpn-subnets
+    #     - name: vpcssh
+    #       ref: workload_ssh_vpn
+    #     - name: resource_group
+    #       ref: workload_resource_group
+    #     - name: vpc
+    #       ref: workload_vpc
+    #     - name: bastion
+    #       ref: workload-vsi-bastion
+    
+    ## Workload does not need Bastion
+    # - name: ibm-vpc-ssh
+    #   alias: workload_ssh_bastion
+    #   dependencies:
+    #     - name: resource_group
+    #       ref: workload_resource_group
+    #   variables:
+    #     - name: label
+    #       value: bastion
+    # - name: vsi-bastion
+    #   alias: workload-vsi-bastion
+    #   dependencies:
+    #     - name: subnets
+    #       ref: workload-bastion-subnets
+    #     - name: vpcssh
+    #       ref: workload_ssh_bastion
+    #     - name: resource_group
+    #       ref: workload_resource_group
+    #     - name: vpc
+    #       ref: workload_vpc
+    ## END - Workload does not need Bastion
+    
+    ## SCC collector not required on workload cluster, as it will be managed collector
+    # - name: ibm-vpc-subnets
+    #   alias: workload-scc-subnets
+    #   dependencies:
+    #     - name: resource-group
+    #       ref: workload_resource_group
+    #     - name: vpc
+    #       ref: workload_vpc
+    #     - name: gateways
+    #       ref: workload_vpc_gateway
+    #   variables:
+    #     - name: _count
+    #       value: 1
+    #     - name: label
+    #       value: scc
+    #     - name: ipv4_cidr_blocks
+    #       value: []
+    # - name: ibm-vpc-ssh
+    #   alias: workload_ssh_scc
+    #   dependencies:
+    #     - name: resource_group
+    #       ref: workload_resource_group
+    #   variables:
+    #     - name: label
+    #       value: scc
+    # - name: scc-collector
+    #   alias: workload-scc-collector
+    #   variables:
+    #     - name: scc_registration_key
+    #       alias: workload_scc_registration_key
+    #   dependencies:
+    #     - name: vpcssh
+    #       ref: workload_ssh_scc
+    #     - name: subnets
+    #       ref: workload-scc-subnets
+    #     - name: resource_group
+    #       ref: workload_resource_group
+    #     - name: vpc
+    #       ref: workload_vpc
+    ## END - SCC collector not required on workload cluster, as it will be managed collector
+
+    - name: ibm-transit-gateway
+      alias: transit_gateway
+      dependencies:
+        - name: resource-group
+          ref: cs_resource_group
+      variables:
+        - name: name_prefix
+          alias: cs_name_prefix
+          scope: global
+      version: v0.1.0
+    - name: ibm-appid
+      alias: appid
+      dependencies:
+        - name: resource-group
+          ref: cs_resource_group
+      variables:
+        - name: region
+          alias: appid_region
+        - name: resource_group_name
+          alias: cs_resource_group_name
+        - name: name_prefix
+          alias: appid_name_prefix
+      version: v1.3.0
+  variables:
+    - name: cs_resource_group_name
+    - name: cs_resource_group_provision
+
+    - name: hpcs_resource_group_provision
+    - name: hpcs_provision
+    - name: hpcs_region
+    - name: hpcs_name_prefix
+    - name: hpcs_name
+
+    - name: mgmt_kms_key_provision
+    - name: mgmt_name_prefix
+    - name: mgmt_resource_group_name
+    - name: mgmt_resource_group_provision
