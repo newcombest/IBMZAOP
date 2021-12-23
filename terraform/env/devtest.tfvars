@@ -40,11 +40,11 @@ bootstrap_cos_tags = ""
 
 ## ##unique## The name of the COS bucket name for bootstrap(tfstate) ##unique##
 ## default: bootstrap
-bootstrap_tfstate_bucket_name = "st-bootstrapbuckettfstate"
+bootstrap_tfstate_bucket_name = "st-bootstraptfstate01"
 
 ## ##unique## The name of the COS bucket name for bootstrap(kms) ##unique##
 ## default: bootstrap
-bootstrap_hpcskey_bucket_name = "st-bootstrapbuckethpcs"
+bootstrap_hpcskey_bucket_name = "st-bootstrapbuckethpcs01"
 
 ## Location of the bootstrap COS bucket
 ## default: us-south
@@ -230,7 +230,7 @@ mgmt_resource_group_name = "rg-boot-ca-tor-001"
 
 ## unique ## The name of the resource group for management resources ## unique ##
 ## default:
-mgmt_kms_key_name = "key-cei-ca-tor-001"
+mgmt_kms_key_name = "key-cei-ca-tor-002"
 
 ## Flag indicating that the resource group for management resources should be created
 ## default: false
@@ -254,11 +254,11 @@ mgmt_cos_provision = true
 
 ## ##unique## The label that should be used for the service, particularly when connecting to an existing service.  ##unique##
 ## default: cos 
-mgmt_cos_label = "st-mgmtcator-02"
+mgmt_cos_label = "st-mgmtcator-03"
 
 ## ## unique ## The prefix of the management resources ## unique ##
 ## default: devmgmt
-mgmt_name_prefix = "mgmt-ca-tor-02"
+mgmt_name_prefix = "mgmt-ca-tor-03"
 
 ## The name required for management VPC instance
 ## default:
@@ -407,9 +407,9 @@ workload3_cos_resource_location = "global"
 
 ####unique## Workload unique Bucket name ##unique##
 ## default:
-workload_flow_log_bucket_name = "bkwklogcator-01"
-workload2_flow_log_bucket_name = "bkwklogcator-02"
-workload3_flow_log_bucket_name = "bkwklogcator-03"
+workload_flow_log_bucket_name = "bkwklogcator-11"
+workload2_flow_log_bucket_name = "bkwklogcator-12"
+workload3_flow_log_bucket_name = "bkwklogcator-13"
 
 ## Tags that should be applied to the service
 ## default: []
@@ -431,9 +431,9 @@ workload3_cos_provision = true
 
 ## ##unique## The label that should be used for the service, particularly when connecting to an existing service. If not provided then the name will be defaulted to {name prefix}-{service}
 ## default: cos ##unique##
-workload_cos_label = "st-wkcsablecator-02"
-workload2_cos_label = "st-wkdevcator-02"
-workload3_cos_label = "st-wkprodcator-02"
+workload_cos_label = "st-wkcsablecator-03"
+workload2_cos_label = "st-wkdevcator-03"
+workload3_cos_label = "st-wkprodcator-03"
 
 ## The name required for workload VPC instance
 ## La numerotation des VM est géré via le script sous le format 000
@@ -443,9 +443,9 @@ workload2_vpc_name = "vm-wkdev"
 workload3_vpc_name = "vm-wkprod"
 
 ## ## unique## The prefix of the workload resources ## unique ##
-workload_name_prefix = "wl-csable-02"
-workload2_name_prefix = "wl-dev-02"
-workload3_name_prefix = "wl-prod-02"
+workload_name_prefix = "wl-csable-03"
+workload2_name_prefix = "wl-dev-03"
+workload3_name_prefix = "wl-prod-03"
 
 ## Flag indicating that the instance should be provisioned. If false then an existing instance will be looked up
 ## default: true
