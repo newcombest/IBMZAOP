@@ -24,7 +24,7 @@ bootstrap_cos_label = "st-boot"
 
 ## The name for COS instance for bootstrap
 ## default: 
-bootstrap_cos_name = "st-bootstrap"
+bootstrap_cos_name = "st-bootstrap01"
 
 ## Location of the bootstrap COS resources
 ## default: global
