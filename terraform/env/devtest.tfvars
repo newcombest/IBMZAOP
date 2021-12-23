@@ -4,7 +4,7 @@
 ###################################################################################################
 ## The name of the resource group for bootstrap resources
 ## default: 
-bootstrap_resource_group_name = "GovQuebec"
+bootstrap_resource_group_name = "rg-boot-ca-tor-001"
 
 ## Should the recource group for bootstrap resources be provisioned
 ## default: false
@@ -16,15 +16,15 @@ bootstrap_cos_provision = true
 
 ## The prefix for cos bootstrap
 ## default: 
-bootstrap_cos_name_prefix = "dev"
+bootstrap_cos_name_prefix = "cei"
 
 ## The name that should be used for the service, particularly when connecting to an existing service. If not provided then the name will be defaulted to {name prefix}-{service}
 ## default: cos
-bootstrap_cos_label = "cos"
+bootstrap_cos_label = "st-boot"
 
 ## The name for COS instance for bootstrap
 ## default: 
-bootstrap_cos_name = "bootstrap-x-y-115"
+bootstrap_cos_name = "st-bootstrap"
 
 ## Location of the bootstrap COS resources
 ## default: global
@@ -40,11 +40,11 @@ bootstrap_cos_tags = ""
 
 ## ##unique## The name of the COS bucket name for bootstrap(tfstate) ##unique##
 ## default: bootstrap
-bootstrap_tfstate_bucket_name = "bootstrap-bucket-tfstate-5"
+bootstrap_tfstate_bucket_name = "st-bootstrapbuckettfstate"
 
 ## ##unique## The name of the COS bucket name for bootstrap(kms) ##unique##
 ## default: bootstrap
-bootstrap_hpcskey_bucket_name = "bootstrap-bucket-kms-itq-5"
+bootstrap_hpcskey_bucket_name = "st-bootstrapbuckethpcs"
 
 ## Location of the bootstrap COS bucket
 ## default: us-south
@@ -60,11 +60,11 @@ key_protect_region = "ca-tor"
 
 ## Name prefix of the key protect services
 ## default: 
-key_protect_name_prefix = "dev"
+key_protect_name_prefix = "kp-cei-ca-tor"
 
 ## The label that should be used for the service, particularly when connecting to an existing service. If not provided then the name will be defaulted to {name prefix}-{service}
 ## default: 
-key_protect_label = "keyprotect"
+key_protect_label = "kpprod001"
 
 ## The name of the key protect instance
 ## default:
@@ -84,11 +84,11 @@ kms_key_region = "ca-tor"
 
 ## Name prefix of the key protect instance
 ## default: 
-kms_key_name_prefix = "dev1"
+kms_key_name_prefix = "kp-cei-ca-tor-kpprod001"
 
 ## The name of the key protect instance
 ## default:
-kms_key_name = "keyprotect"
+kms_key_name = ""
 
 ## The label that should be used for the service, particularly when connecting to an existing service. If not provided then the name will be defaulted to {name prefix}-{service}
 ## default:
@@ -105,7 +105,7 @@ kms_key_provision = true
 #Pattern parameters
 ## The name of the resource group for common services
 ## default:
-cs_resource_group_name = "GovQuebec"
+cs_resource_group_name = "rg-boot-ca-tor-001"
 
 ## Flag indicating that the resource group for common services should be created
 ## default: false
@@ -113,7 +113,7 @@ cs_resource_group_provision = false
 
 ## The name of the resource group for HPCS instance
 ## default: 
-kms_resource_group_name = "GovQuebec"
+kms_resource_group_name = "rg-boot-ca-tor-001"
 
 ## Flag indicating that the resource group for HPCS instance should be created
 ## default: false
@@ -125,7 +125,7 @@ kms_region = "ca-tor"
 
 ## Prefix name for the HPCS service. If not provided it will default to the resource group name
 ## default: 
-kms_name_prefix = ""
+kms_name_prefix = "kms-kp-ca-tor"
 
 ##The type of the service instance should run 'hpcs' or 'keyprotect'"
 kms_service = "kms"
@@ -136,7 +136,7 @@ kms_label = "hpcs"
 
 ## The name that should be used for the HPCS instance, particularly when connecting to an existing service. If not provided then the name will be defaulted to {name prefix}-{service}
 ## default:
-kms_name = "dev-keyprotect"
+kms_name = "kp-cei-ca-tor-kpprod001"
 
 ## Flag indicating that the service should be created with private endpoints
 ## default: true
@@ -226,11 +226,11 @@ region = "ca-tor"
 
 ## The name of the resource group for management resources
 ## default:
-mgmt_resource_group_name = "GovQuebec"
+mgmt_resource_group_name = "rg-boot-ca-tor-001"
 
 ## unique ## The name of the resource group for management resources ## unique ##
 ## default:
-mgmt_kms_key_name = "mgnt-key-itq-5"
+mgmt_kms_key_name = "key-cei-ca-tor-001"
 
 ## Flag indicating that the resource group for management resources should be created
 ## default: false
@@ -254,15 +254,15 @@ mgmt_cos_provision = true
 
 ## ##unique## The label that should be used for the service, particularly when connecting to an existing service.  ##unique##
 ## default: cos 
-mgmt_cos_label = "mgmt-cos-itq-5"
+mgmt_cos_label = "st-mgmtcator-02"
 
 ## ## unique ## The prefix of the management resources ## unique ##
 ## default: devmgmt
-mgmt_name_prefix = "gq-mgmt-itq-5"
+mgmt_name_prefix = "mgmt-ca-tor-02"
 
 ## The name required for management VPC instance
 ## default:
-management_vpc_name = "gq-vpc-mgm"
+management_vpc_name = "vpc-mgmt-ca-tor-02"
 
 ## Flag indicating that the VPN for workload VPC should be created
 ## default: true
@@ -297,7 +297,7 @@ mgmt_subnets__count = 3
 
 ## Label for the subnets created
 ## default: mgmt
-mgmt_subnets_label = "mgmt"
+mgmt_subnets_label = "snet-mgmt-ca-tor-02"
 
 ## The offset for the zone where the subnet should be created. The default offset is 0 which means the first subnet should be created in zone xxx-1
 ## default: 0
@@ -326,7 +326,7 @@ mgmt_vpe_subnets__count = 3
 
 ## Label for the subnets created
 ## default: vpe
-mgmt_vpe_subnets_label = "vpe"
+mgmt_vpe_subnets_label = "vpe-mgmt-ca-tor-02"
 
 ## The offset for the zone where the subnet should be created. The default offset is 0 which means the first subnet should be created in zone xxx-1
 ## default: 0
@@ -359,7 +359,7 @@ mgmt_vpn_subnets__count = 1
 
 ## Label for the subnets created
 ## default: vpn
-mgmt_vpn_subnets_label = "vpn"
+mgmt_vpn_subnets_label = "vpn-mgmt-ca-tor-02"
 
 ## The offset for the zone where the subnet should be created. The default offset is 0 which means the first subnet should be created in zone xxx-1
 ## default: 0
@@ -388,9 +388,9 @@ mgmt_vpn_subnets_provision = true
 
 ## The name of the resource group for workload resources
 ## default:
-workload_resource_group_name = "GovQuebec"
-workload2_resource_group_name = "GovQuebec"
-workload3_resource_group_name = "GovQuebec"
+workload_resource_group_name = "rg-boot-ca-tor-001"
+workload2_resource_group_name = "rg-boot-ca-tor-001"
+workload3_resource_group_name = "rg-boot-ca-tor-001"
 
 
 ## Flag indicating that the resource group for workload resources should be created
@@ -407,9 +407,9 @@ workload3_cos_resource_location = "global"
 
 ####unique## Workload unique Bucket name ##unique##
 ## default:
-workload_flow_log_bucket_name = "wks-itq-5"
-workload2_flow_log_bucket_name = "wkd-itq-5"
-workload3_flow_log_bucket_name = "wkp-itq-5"
+workload_flow_log_bucket_name = "bkwklogcator-01"
+workload2_flow_log_bucket_name = "bkwklogcator-02"
+workload3_flow_log_bucket_name = "bkwklogcator-03"
 
 ## Tags that should be applied to the service
 ## default: []
@@ -431,20 +431,21 @@ workload3_cos_provision = true
 
 ## ##unique## The label that should be used for the service, particularly when connecting to an existing service. If not provided then the name will be defaulted to {name prefix}-{service}
 ## default: cos ##unique##
-workload_cos_label = "wk-csable-cos-5"
-workload2_cos_label = "wk-dev-cos-5"
-workload3_cos_label = "wk-prod-cos-5"
+workload_cos_label = "st-wkcsablecator-02"
+workload2_cos_label = "st-wkdevcator-02"
+workload3_cos_label = "st-wkprodcator-02"
 
 ## The name required for workload VPC instance
+## La numerotation des VM est géré via le script sous le format 000
 ## default: 
-workload_vpc_name = "gq-vpc-csable"
-workload2_vpc_name = "gq-vpc-dev"
-workload3_vpc_name = "gq-vpc-prod"
+workload_vpc_name = "vm-wkcsable"
+workload2_vpc_name = "vm-wkdev"
+workload3_vpc_name = "vm-wkprod"
 
 ## ## unique## The prefix of the workload resources ## unique ##
-workload_name_prefix = "gq-csable-5"
-workload2_name_prefix = "gq-dev-5"
-workload3_name_prefix = "gq-prod-5"
+workload_name_prefix = "wl-csable-02"
+workload2_name_prefix = "wl-dev-02"
+workload3_name_prefix = "wl-prod-02"
 
 ## Flag indicating that the instance should be provisioned. If false then an existing instance will be looked up
 ## default: true
@@ -511,9 +512,9 @@ workload3_subnets__count = 3
 
 ## Label for the subnets created
 ## default: workload
-workload_subnets_label = "wk-csable"
-workload2_subnets_label = "wk-dev"
-workload3_subnets_label = "wk-prod"
+workload_subnets_label = "snet-csable-02"
+workload2_subnets_label = "snet-dev-02"
+workload3_subnets_label = "snet-prod-02"
 
 ##
 ## workload -- csable
@@ -590,9 +591,9 @@ workload_vpe_subnets__count = 3
 
 ## Label for the subnets created
 ## default: vpe
-workload_vpe_subnets_label = "vpes"
-workload2_vpe_subnets_label = "vped"
-workload3_vpe_subnets_label = "vpep"
+workload_vpe_subnets_label = "vpe-csable-02"
+workload2_vpe_subnets_label = "vpe-dev-02"
+workload3_vpe_subnets_label = "vpe-prod-02"
 
 ##
 ## workload -- csable
@@ -670,9 +671,9 @@ workload_vpn_subnets__count = 1
 
 ## Label for the subnets created
 ## default: vpn
-workload_vpn_subnets_label = "vpns"
-workload2_vpn_subnets_label = "vpnd"
-workload3_vpn_subnets_label = "vpnp"
+workload_vpn_subnets_label = "vpn-csable-02"
+workload2_vpn_subnets_label = "vpn-dev-02"
+workload3_vpn_subnets_label = "vpn-prod-02"
 
 ##
 ## workload -- csable
@@ -760,7 +761,7 @@ workload3_vpc_vsi_image_name = "ibm-ubuntu-18-04-5-minimal-amd64-1"
 
 ## name of transit gateway
 ## default: 
-ibm_transit_gateway_name = "dev-tw"
+ibm_transit_gateway_name = "tg-cei-ca-tor-02"
 
 
 ##########################
@@ -780,13 +781,13 @@ workload3_load_balancer_provision= false
 
 ## Name for management load balancer 
 ## default: mgmtloadbalancer
-mgmt_load_balancer_name = "mgmtloadbalancer"
+mgmt_load_balancer_name = "lb-cei-ca-tor-02"
 
 ## Name of workload load balancer 
 ## default: wrkloadbalancer
-workload_load_balancer_name = "wrkloadbalancer-csable"
-workload2_load_balancer_name = "wrkloadbalancer-dev"
-workload3_load_balancer_name = "wrkloadbalancer-prod"
+workload_load_balancer_name = "lb-csable-02"
+workload2_load_balancer_name = "lb-dev-02"
+workload3_load_balancer_name = "lb-prod-02"
 
 ## The type for nlb : public/private
 ## default: "private"
@@ -807,7 +808,7 @@ lb_tags = []
 ##default:
 sysdig_provision = true
 ## Name to use for Sysdig Instance 
-sysdig_name = "qcsysdig"
+sysdig_name = "sysdig-ca-tor-02"
 ## List of Tags for the Sysdig Instance
 sysdig_tags = "[]"
 
@@ -815,7 +816,7 @@ sysdig_tags = "[]"
 ##default:
 logdna_provision = true
 ## Name to use for LogDNA Instance 
-logdna_name = "qclogdna"
+logdna_name = "logdna-ca-tor-02"
 ## List of Tags for the LogDNA Instance
 logdna_tags = "[]"
 
@@ -828,6 +829,6 @@ ibm-activity-tracker_tags = "[]"
 ##########################
 #######SECURITY###########
 ##########################
-resource_group_name = "GovQuebec"
-name_prefix = "qc-2"
+resource_group_name = "rg-boot-ca-tor-02"
+name_prefix = "cei"
 plan = "standard"
