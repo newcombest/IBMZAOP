@@ -9,8 +9,6 @@ template:
   required:
     - githubconsolidated01
     - pipeline_bootstrap
-    - pipeline_vpc
-    - pipeline_roks
     - pipeline_vsi
   $configuration:
      ENABLE_EXTENSIONS: true
@@ -42,44 +40,6 @@ services:
           VAR_FILE: '{{form.pipeline.parameters.tf-var-file}}'
         content:
           $text: pipeline_bootstrap.yml
-      services:
-        - githubconsolidated01
-    service_id: pipeline
-
-  pipeline_vpc:
-    parameters:
-      label: pipeline02-vpc
-      type: tekton
-      name: pipeline02-vpc
-      ui_pipeline: true
-      configuration:
-        env:
-          githubconsolidated01: githubconsolidated01
-          PIPELINE_REPO: '$env.repository'
-          PIPELINE_REPO_BRANCH: '$env.branch'
-          API_KEY: '{{form.pipeline.parameters.api-key}}'
-          VAR_FILE: '{{form.pipeline.parameters.tf-var-file}}'
-        content:
-          $text: pipeline_vpc.yml
-      services:
-        - githubconsolidated01
-    service_id: pipeline
-
-  pipeline_roks:
-    parameters:
-      label: pipeline03-roks
-      type: tekton
-      name: pipeline03-roks
-      ui_pipeline: true
-      configuration:
-        env:
-          githubconsolidated01: githubconsolidated01
-          PIPELINE_REPO: '$env.repository'
-          PIPELINE_REPO_BRANCH: '$env.branch'
-          API_KEY: '{{form.pipeline.parameters.api-key}}'
-          VAR_FILE: '{{form.pipeline.parameters.tf-var-file}}'
-        content:
-          $text: pipeline_roks.yml
       services:
         - githubconsolidated01
     service_id: pipeline
