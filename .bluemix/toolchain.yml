@@ -7,9 +7,9 @@ template:
   description:
     $ref: "#/messages/template.description"
   required:
-    - githubconsolidated01
+    - githubconsolidated
     - pipeline_bootstrap
-    - pipeline_vsi
+    - pipeline01
   $configuration:
      ENABLE_EXTENSIONS: true
      ENABLE_IF_ELSE: true
@@ -23,17 +23,17 @@ template:
         "(" + $env.repository +
           "/tree/" + $env.branch + ")"
 toolchain:
-  name: AC-Automation
+  name: SLZ-VSI-Base
 services:
   pipeline_bootstrap:
     parameters:
-      label: pipeline01-bootstrap
+      label: SLZ-VSI-Bootstrap
       type: tekton
-      name: pipeline01-bootstrap
+      name: SLZ-VSI-Bootstrap
       ui_pipeline: true
       configuration:
         env:
-          githubconsolidated01: githubconsolidated01
+          githubconsolidated: githubconsolidated
           PIPELINE_REPO: '$env.repository'
           PIPELINE_REPO_BRANCH: '$env.branch'
           API_KEY: '{{form.pipeline.parameters.api-key}}'
@@ -41,53 +41,55 @@ services:
         content:
           $text: pipeline_bootstrap.yml
       services:
-        - githubconsolidated01
+        - githubconsolidated
     service_id: pipeline
 
-  pipeline_vsi:
+  pipeline01:
     parameters:
-      label: pipeline04-vsi
+      label: SLZ-VSI-Provision
       type: tekton
-      name: pipeline04-vsi
+      name: SLZ-VSI-Provision
       ui_pipeline: true
       configuration:
         env:
-          githubconsolidated01: githubconsolidated01
+          githubconsolidated: githubconsolidated
           PIPELINE_REPO: '$env.repository'
           PIPELINE_REPO_BRANCH: '$env.branch'
           API_KEY: '{{form.pipeline.parameters.api-key}}'
           VAR_FILE: '{{form.pipeline.parameters.tf-var-file}}'
         content:
-          $text: pipeline_vsi.yml
+          $text: pipeline_provision.yml
       services:
-        - githubconsolidated01
+        - githubconsolidated
     service_id: pipeline
 
-  githubconsolidated01:
+  githubconsolidated:
     parameters:
       extra_capabilities:
         - capability_id: git.issues
           display_name: Issues
           dashboard_url: ''
-          label: ac-automation
+          label: ra-vsi-base-pattern
           tags:
             - think
             - code
           enabled: false
           readme: false
-      label: ac-automation
+      label: ra-vsi-base-pattern
       type: link
+      authorized: integrated
+      git_id: integrated
       legal: true
-      owner_id: fs-cloud-canada
+      owner_id: slzone
       repo_url: '$env.repository'
       private_repo: true
       has_issues: false
       enable_traceability: true
       integration_owner: '****'
-      repo_name: ac-automation
+      repo_name: ra-vsi-base-pattern
       api_root_url: '****'
       token_url: '****'
-    service_id: githubconsolidated
+    service_id: github_integrated
 
   draservicebroker02:
     parameters:
@@ -100,7 +102,7 @@ services:
 form:
   pipeline:
     parameters:
-      app-name: '{{services.githubconsolidated01.parameters.repo_name}}'
+      app-name: '{{services.github_integrated01.parameters.repo_name}}'
       api-key: ''
       tf-var-file: 'devtest.tfvars'
     schema:
