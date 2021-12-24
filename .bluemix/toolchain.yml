@@ -7,9 +7,11 @@ template:
   description:
     $ref: "#/messages/template.description"
   required:
-    - github_integrated01
+    - githubconsolidated01
     - pipeline_bootstrap
-    - pipeline01
+    - pipeline_vpc
+    - pipeline_roks
+    - pipeline_vsi
   $configuration:
      ENABLE_EXTENSIONS: true
      ENABLE_IF_ELSE: true
@@ -23,17 +25,17 @@ template:
         "(" + $env.repository +
           "/tree/" + $env.branch + ")"
 toolchain:
-  name: SLZ-VSI-Base
+  name: AC-Automation
 services:
   pipeline_bootstrap:
     parameters:
-      label: SLZ-VSI-Bootstrap
+      label: pipeline01-bootstrap
       type: tekton
-      name: SLZ-VSI-Bootstrap
+      name: pipeline01-bootstrap
       ui_pipeline: true
       configuration:
         env:
-          github_integrated01: github_integrated01
+          githubconsolidated01: githubconsolidated01
           PIPELINE_REPO: '$env.repository'
           PIPELINE_REPO_BRANCH: '$env.branch'
           API_KEY: '{{form.pipeline.parameters.api-key}}'
@@ -41,55 +43,91 @@ services:
         content:
           $text: pipeline_bootstrap.yml
       services:
-        - github_integrated01
+        - githubconsolidated01
     service_id: pipeline
 
-  pipeline01:
+  pipeline_vpc:
     parameters:
-      label: SLZ-VSI-Provision
+      label: pipeline02-vpc
       type: tekton
-      name: SLZ-VSI-Provision
+      name: pipeline02-vpc
       ui_pipeline: true
       configuration:
         env:
-          github_integrated01: github_integrated01
+          githubconsolidated01: githubconsolidated01
           PIPELINE_REPO: '$env.repository'
           PIPELINE_REPO_BRANCH: '$env.branch'
           API_KEY: '{{form.pipeline.parameters.api-key}}'
           VAR_FILE: '{{form.pipeline.parameters.tf-var-file}}'
         content:
-          $text: pipeline_provision.yml
+          $text: pipeline_vpc.yml
       services:
-        - github_integrated01
+        - githubconsolidated01
     service_id: pipeline
 
-  github_integrated01:
+  pipeline_roks:
+    parameters:
+      label: pipeline03-roks
+      type: tekton
+      name: pipeline03-roks
+      ui_pipeline: true
+      configuration:
+        env:
+          githubconsolidated01: githubconsolidated01
+          PIPELINE_REPO: '$env.repository'
+          PIPELINE_REPO_BRANCH: '$env.branch'
+          API_KEY: '{{form.pipeline.parameters.api-key}}'
+          VAR_FILE: '{{form.pipeline.parameters.tf-var-file}}'
+        content:
+          $text: pipeline_roks.yml
+      services:
+        - githubconsolidated01
+    service_id: pipeline
+
+  pipeline_vsi:
+    parameters:
+      label: pipeline04-vsi
+      type: tekton
+      name: pipeline04-vsi
+      ui_pipeline: true
+      configuration:
+        env:
+          githubconsolidated01: githubconsolidated01
+          PIPELINE_REPO: '$env.repository'
+          PIPELINE_REPO_BRANCH: '$env.branch'
+          API_KEY: '{{form.pipeline.parameters.api-key}}'
+          VAR_FILE: '{{form.pipeline.parameters.tf-var-file}}'
+        content:
+          $text: pipeline_vsi.yml
+      services:
+        - githubconsolidated01
+    service_id: pipeline
+
+  githubconsolidated01:
     parameters:
       extra_capabilities:
         - capability_id: git.issues
           display_name: Issues
           dashboard_url: ''
-          label: ra-vsi-base-pattern
+          label: ac-automation
           tags:
             - think
             - code
           enabled: false
           readme: false
-      label: ra-vsi-base-pattern
+      label: ac-automation
       type: link
-      authorized: integrated
-      git_id: integrated
       legal: true
-      owner_id: slzone
+      owner_id: fs-cloud-canada
       repo_url: '$env.repository'
       private_repo: true
       has_issues: false
       enable_traceability: true
       integration_owner: '****'
-      repo_name: ra-vsi-base-pattern
+      repo_name: ac-automation
       api_root_url: '****'
       token_url: '****'
-    service_id: github_integrated
+    service_id: githubconsolidated
 
   draservicebroker02:
     parameters:
@@ -102,7 +140,7 @@ services:
 form:
   pipeline:
     parameters:
-      app-name: '{{services.github_integrated01.parameters.repo_name}}'
+      app-name: '{{services.githubconsolidated01.parameters.repo_name}}'
       api-key: ''
       tf-var-file: 'devtest.tfvars'
     schema:
